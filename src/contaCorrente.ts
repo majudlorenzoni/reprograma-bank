@@ -1,53 +1,28 @@
 import { Conta } from './conta';
-import { menuOperacoes } from './conta';
 import { Cliente } from './cliente';
 
 export class ContaCorrente extends Conta {
+  private chequeEspecial: number;
 
-  private limiteChequeEspecial: number;
-
-  constructor(cliente: Cliente, agencia: string, numeroConta: string, saldo: number, limiteChequeEspecial: number) {
-    super(cliente, agencia, numeroConta, saldo, "corrente");
-    this.limiteChequeEspecial = 100.00;
-  }
-  getLimiteChequeEspecial(): number {
-    return this.limiteChequeEspecial;
-  }
-
-  getAgencia(): string {
-    return this.agencia;
-  }
-
-  getNumeroConta(): string {
-    return this.numeroConta;
-  }
-
-  getSaldo(): number {
-    return this.saldo;
+  constructor(cliente: Cliente, agencia: string, numero:string, saldo: number, tipoConta: string, chequeEspecial: number) {
+    super(cliente, agencia, numero, saldo, tipoConta);
+    this.chequeEspecial = chequeEspecial;
   }
 
   sacar(valor: number): void {
-    if (this.saldo >= valor) {
-      this.saldo -= valor;
-    } else if (this.saldo + this.limiteChequeEspecial >= valor) {
-      const limiteDisponivel = this.saldo + this.limiteChequeEspecial;
-      console.log(`Saldo insuficiente! Limite disponível: ${limiteDisponivel}`);
+    const limiteTotal = this.saldo + this.chequeEspecial;
+    if (valor <= limiteTotal) {
+      if (valor <= this.saldo) {
+        this.saldo -= valor;
+      } else {
+        const valorDoChequeEspecial = valor - this.saldo;
+        this.saldo = 0;
+        this.chequeEspecial -= valorDoChequeEspecial;
+        console.log(`Utilizado cheque especial de ${valorDoChequeEspecial}. Novo saldo do cheque especial: ${this.chequeEspecial}`);
+      }
+      console.log(`Sacado ${valor} da conta corrente ${this.numero}. Novo saldo: ${this.saldo}`);
     } else {
-      console.log('Saldo e limite do cheque especial insuficientes!');
+      console.log(`Limite de saldo + cheque especial ultrapassado na conta corrente ${this.numero}.`);
     }
   }
 }
-
-export function exibirContaCorrente(conta: Conta | undefined) {
-  if (conta instanceof ContaCorrente) {
-    console.log(`Agência: ${conta.getAgencia()}\nConta: ${conta.getNumeroConta()}\nSaldo: ${conta.getSaldo()}\nLimite do Cheque Especial: ${conta.getLimiteChequeEspecial()}`);
-    menuOperacoes(conta);
-  } else {
-    console.log('Conta corrente não encontrada.');
-  }
-
-  
-}
-
-
-

@@ -1,45 +1,25 @@
-import  { menuOperacoes } from './conta';
 import { Conta } from './conta';
 import { Cliente } from './cliente';
 
 export class ContaPoupanca extends Conta {
+  private taxaJuros: number; // Taxa de juros em percentual (ex: 0.5 para 0.5%)
 
-  private taxaJuros: number;
-  constructor(cliente: Cliente, agencia: string, numeroConta: string, saldo: number, limiteChequeEspecial: number) {
-    super(cliente, agencia, numeroConta, saldo, "poupança");
-    this.taxaJuros = 0.5; // Taxa de juros hipotética de 0,5% ao mê
-}
-  
-    getTaxaJuros(): number {
-      return this.taxaJuros;
-    }
-  
-    getAgencia(): string {
-      return this.agencia;
-    }
-  
-    getNumeroConta(): string {
-      return this.numeroConta;
-    }
-  
-    getSaldo(): number {
-      return this.saldo;
-    }
+  constructor(cliente: Cliente, agencia: string, numero: string, saldo: number, tipoConta: string, taxaJuros: number) {
+    super(cliente,agencia, numero, saldo, tipoConta);
+    this.taxaJuros = taxaJuros;
+  }
 
-    sacar(valor: number): void {
-      if (this.saldo >= valor) {
-        this.saldo -= valor;
-      } else {
-        console.log('Saldo insuficiente!');
-      }
-    }
-}
+  calcularTaxa(): number {
+    return this.saldo * (this.taxaJuros / 100);
+  }
 
-export function exibirContaPoupanca(conta: Conta | undefined) {
-  if (conta instanceof ContaPoupanca) {
-    console.log(`Agência: ${conta.getAgencia()}\nConta: ${conta.getNumeroConta()}\nSaldo: ${conta.getSaldo()}\nTaxa de Juros: ${conta.getTaxaJuros()}`);
-    menuOperacoes(conta);
-  } else {
-    console.log('Conta poupança não encontrada.');
+  transferir(destino: Conta, valor: number): void {
+    if (valor > 0 && this.saldo >= valor) {
+      this.sacar(valor);
+      destino.depositar(valor);
+      console.log(`Transferência de R$ ${valor.toFixed(2)} realizada da conta poupança ${this.numero} para a conta ${destino.numero}.`);
+    } else {
+      console.log(`Transferência não realizada. Saldo insuficiente na conta poupança ${this.numero}.`);
+    }
   }
 }
