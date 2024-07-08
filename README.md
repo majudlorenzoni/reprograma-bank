@@ -1,100 +1,159 @@
-# Desafio Semana3
+# Reprograma Bank
 
-### Objetivos de aprendizagem do desafio 🎯
+## Como Iniciar o Projeto
+Para iniciar o projeto, siga estas instruções:
 
-- Entender como o TypeScript, uma linguagem de programação superset de JavaScript, se integra naturalmente ao ecossistema do Node.js.
-- Compreender os princípios e características de uma arquitetura RESTful.
-- Identificar os recursos, URIs, métodos HTTP e códigos de status comuns em uma API REST.
-- Aprender a projetar e implementar uma API RESTful usando Node.js, seguindo as melhores práticas de REST.
+1. Abra um terminal e navegue até o diretório do projeto.
 
+2. Verifique se você tem todas as dependências necessárias. Execute o comando: `npm install`
 
-<h2 align=center> {Reprograma}Bank </h2>
-<h3>Disponibilizando nossa API</h3>
+3. Uma vez que as dependências estiverem instaladas, execute o comando `npm run build` seguido de `npm start` para iniciar o projeto.
+4. O servidor será iniciado e você poderá acessar a aplicação em seu navegador em http://localhost:3000.
 
-Seu desafio é criar uma API RESTful para o sistema bancário desenvolvido na semana 2, agora incluindo a funcionalidade de Gerente de Conta. O Gerente é responsável por gerenciar os clientes e suas contas, podendo abrir, fechar e modificar o tipo de conta.
+Isso é tudo! Você iniciou o projeto com sucesso.
 
-Abaixo estão os requisitos:
+## Descrição dos Diretórios e Arquivos
 
-Ao cliente do banco ser adicionadas as seguintes informações:
+- **src/**: Contém o código-fonte do projeto.
+  - **controllers/**: Controladores que lidam com as requisições HTTP e chamam os serviços apropriados.
+  - **models/**: Modelos de dados que representam as entidades do sistema, como Cliente, Conta, Conta Corrente, Conta Poupança e Gerente.
+  - **routes/**: Define as rotas da API REST para cada entidade (Cliente, Conta e Gerente).
+  - **services/**: Lógica de negócio e regras de manipulação de dados.
+  - **index.ts**: Arquivo principal que inicializa o servidor e configura a aplicação.
 
-- Contas
-- Gerente
+- **node_modules/**: Contém as dependências do projeto instaladas pelo npm.
+- **package.json**: Arquivo de configuração do npm que inclui metadados do projeto e as dependências.
+- **tsconfig.json**: Arquivo de configuração do TypeScript.
+- **README.md**: Este arquivo, que fornece uma visão geral do projeto, estrutura de pastas e informações importantes.
 
-Gerente deve ter as seguintes informações:
+## Diagrama do Projeto
 
-- Nome completo
-- Número de identificação (ID)
-- Clientes
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#cfa8ff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#8128ed'}}}%%
+classDiagram
+    class Cliente {
+        -string nomeCompleto
+        -number rendaSalarial
+        -Conta[] contasAssociadas
+    }
+    
+    class Conta {
+        -string agencia
+        -string numero
+        -number saldo
+        -string tipoConta
+        -number limite
+        +depositar(valor: number): void
+        +sacar(valor: number): boolean
+        +transferir(destino: Conta, valor: number): boolean
+        +verificarSaldo(valor: number): boolean
+    }
 
-#### Requisitos de negócio:
+    class ContaCorrente {
+        -number limiteChequeEspecial
+    }
+    
+    class ContaPoupanca {
+        -number taxaRendimento
+    }
+    
+    class Gerente {
+        -string nome
+        +gerenciarCliente(cliente: Cliente): void
+        +gerenciarConta(conta: Conta): void
+    }
+    
+    class ClienteService {
+        +buscarCliente(id: string): Cliente
+        +listarContas(id: string): Conta[]
+        +realizarTransacao(...)
+    }
+    
+    class ContaService {
+        +abrirConta(cliente: Cliente, tipoConta: string): void
+        +fecharConta(cliente: Cliente, numeroConta: string): void
+        +mudarTipoConta(cliente: Cliente, numeroConta: string, novoTipo: string): void
+        +listarContas(cliente: Cliente): Conta[]
+        +getContaByNumero(cliente: Cliente, numeroConta: string): Conta
+        +depositar(conta: Conta, valor: number): void
+        +sacar(conta: Conta, valor: number): boolean
+        +transferir(origem: Conta, destino: Conta, valor: number): boolean
+        +realizarPagamentoPIX(conta: Conta, valor: number): void
+        +realizarPagamentoBoleto(conta: Conta, numeroBoleto: string, valor: number): void
+    }
+    
+    class GerenteService {
+        +adicionarGerente(gerente: Gerente): void
+        +removerGerente(id: string): void
+        +gerenciarCliente(cliente: Cliente): void
+        +gerenciarConta(conta: Conta): void
+    }
+    
+    class ClienteController {
+        +listarContas(req, res): void
+        +abrirConta(req, res): void
+        +fecharConta(req, res): void
+        +mudarTipoConta(req, res): void
+    }
 
-- Criar classes para representar Cliente e Gerente, incluindo os atributos mencionados no diagrama.
-- Implementar métodos nas classes Cliente e Gerente para abrir, fechar e modificar o tipo de conta.
-- Atualizar a classe Conta para manter uma referência ao cliente associado a ela.
-- Implementar métodos na classe Gerente para adicionar e remover clientes, bem como para abrir, fechar e modificar o tipo de conta para um determinado cliente.
-- Organizar a estrutura do projeto de forma apropriada, seguindo as melhores práticas para uma API RESTful.
+    class ContaController {
+        +depositar(req, res): void
+        +sacar(req, res): void
+        +transferir(req, res): void
+        +realizarPagamentoPIX(req, res): void
+        +realizarPagamentoBoleto(req, res): void
+    }
 
-### Diagrama:
+    class GerenteController {
+        +adicionarGerente(req, res): void
+        +removerGerente(req, res): void
+        +gerenciarCliente(req, res): void
+        +gerenciarConta(req, res): void
+    }
 
-```lua
-+---------------------------------+
-|           Cliente               |
-+---------------------------------+
-| - nomeCompleto: string          |
-| - id: string                    |
-| - endereco: string              |
-| - telefone: string              |
-| - contas: ContaBancaria[]       |
-| - gerente: Gerente              |
-+---------------------------------+
-| + constructor(...)              |
-| + abrirConta(conta: ContaBancaria): void |
-| + fecharConta(conta: ContaBancaria): void |
-| + mudarTipoConta(conta: ContaBancaria, novoTipo: string): void |
-+---------------------------------+
-              |
-              |
-     +--------+---------+
-     |                  |
-+----v----+      +------v------+
-| Conta   |      | ContaCorrente|
-+---------+      +-------------+
-| # saldo |      | # chequeEspecial: number
-+---------+      +-------------+
-| depositar(valor: number): void |
-| sacar(valor: number): void     |
-| verificarSaldo(): number       |
-| transferir(destino: ContaBancaria, valor: number): void |
-+-----------------+
-        ^
-        |
-+-------+-------+
-|               |
-| ContaPoupanca |
-+---------------+
-| # taxaJuros: number
-+---------------+
-| calcularTaxa(): number |
-| transferir(destino: ContaBancaria, valor: number): void |
-+---------------+
+    class AppModule {
+        +imports: Module[]
+    }
+    
+    class ClienteModule {
+        +imports: Module[]
+        +controllers: Controller[]
+        +providers: Provider[]
+    }
 
-+-----------------------+
-|        Gerente        |
-+-----------------------+
-| - nomeCompleto: string|
-| - id: string          |
-| - clientes: Cliente[] |
-+-----------------------+
-| + constructor(...)    |
-| + adicionarCliente(cliente: Cliente): void |
-| + removerCliente(cliente: Cliente): void |
-| + abrirConta(cliente: Cliente, tipoConta: string): void |
-| + fecharConta(cliente: Cliente, conta: ContaBancaria): void |
-| + mudarTipoConta(cliente: Cliente, conta: ContaBancaria, novoTipo: string): void |
-+-----------------------+
-```
+    class ContaModule {
+        +imports: Module[]
+        +controllers: Controller[]
+        +providers: Provider[]
+    }
 
-### Detalhes da implementação
-Nesta semana, decidi seguir rigorosamente o que foi pedido no desafio. Com o diagrama, consegui organizar o código de forma mais estruturada e simplificada, o que vai facilitar as próximas implementações. Retirei as funções que criavam uma interface de linha de comando interativa. Apesar de considerar a interatividade importante, acredito que posso programar essa funcionalidade no futuro, com mais organização.
-
-O arquivo index.ts foi criado para realizar as invocações das funções. Nele, um cliente é criado, em seguida, são criadas sua conta poupança e sua conta corrente, e transferências de valores da conta poupança para a conta corrente são realizadas. Também há o caso da criação de uma gerente, onde a gerente cria um novo cliente, abre ambos os tipos de contas para o cliente e depois fecha a conta poupança do cliente.
+    class GerenteModule {
+        +imports: Module[]
+        +controllers: Controller[]
+        +providers: Provider[]
+    }
+    
+    Cliente "1" --> "*" Conta
+    Conta <|-- ContaCorrente
+    Conta <|-- ContaPoupanca
+    ClienteService --> Cliente
+    ClienteService --> Conta
+    ContaService --> Cliente
+    ContaService --> Conta
+    GerenteService --> Cliente
+    GerenteService --> Conta
+    Gerente "1" --> "*" Cliente
+    ClienteController --> ClienteService
+    ClienteController --> ContaService
+    ContaController --> ContaService
+    GerenteController --> GerenteService
+    GerenteController --> ClienteService
+    AppModule --> ClienteModule
+    AppModule --> ContaModule
+    AppModule --> GerenteModule
+    ClienteModule --> ClienteController
+    ClienteModule --> ClienteService
+    ContaModule --> ContaController
+    ContaModule --> ContaService
+    GerenteModule --> GerenteController
+    GerenteModule --> GerenteService
