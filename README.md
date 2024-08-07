@@ -1,73 +1,159 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Reprograma Bank
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Como Iniciar o Projeto
+Para iniciar o projeto, siga estas instruções:
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+1. Abra um terminal e navegue até o diretório do projeto.
 
-## Description
+2. Verifique se você tem todas as dependências necessárias. Execute o comando: `npm install`
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+3. Uma vez que as dependências estiverem instaladas, execute o comando `npm run build` seguido de `npm start` para iniciar o projeto.
+4. O servidor será iniciado e você poderá acessar a aplicação em seu navegador em http://localhost:3000.
 
-## Installation
+Isso é tudo! Você iniciou o projeto com sucesso.
 
-```bash
-$ npm install
-```
+## Descrição dos Diretórios e Arquivos
 
-## Running the app
+- **src/**: Contém o código-fonte do projeto.
+  - **controllers/**: Controladores que lidam com as requisições HTTP e chamam os serviços apropriados.
+  - **models/**: Modelos de dados que representam as entidades do sistema, como Cliente, Conta, Conta Corrente, Conta Poupança e Gerente.
+  - **routes/**: Define as rotas da API REST para cada entidade (Cliente, Conta e Gerente).
+  - **services/**: Lógica de negócio e regras de manipulação de dados.
+  - **index.ts**: Arquivo principal que inicializa o servidor e configura a aplicação.
 
-```bash
-# development
-$ npm run start
+- **node_modules/**: Contém as dependências do projeto instaladas pelo npm.
+- **package.json**: Arquivo de configuração do npm que inclui metadados do projeto e as dependências.
+- **tsconfig.json**: Arquivo de configuração do TypeScript.
+- **README.md**: Este arquivo, que fornece uma visão geral do projeto, estrutura de pastas e informações importantes.
 
-# watch mode
-$ npm run start:dev
+## Diagrama do Projeto
 
-# production mode
-$ npm run start:prod
-```
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#cfa8ff', 'edgeLabelBackground':'#ffffff', 'tertiaryColor': '#8128ed'}}}%%
+classDiagram
+    class Cliente {
+        -string nomeCompleto
+        -number rendaSalarial
+        -Conta[] contasAssociadas
+    }
+    
+    class Conta {
+        -string agencia
+        -string numero
+        -number saldo
+        -string tipoConta
+        -number limite
+        +depositar(valor: number): void
+        +sacar(valor: number): boolean
+        +transferir(destino: Conta, valor: number): boolean
+        +verificarSaldo(valor: number): boolean
+    }
 
-## Test
+    class ContaCorrente {
+        -number limiteChequeEspecial
+    }
+    
+    class ContaPoupanca {
+        -number taxaRendimento
+    }
+    
+    class Gerente {
+        -string nome
+        +gerenciarCliente(cliente: Cliente): void
+        +gerenciarConta(conta: Conta): void
+    }
+    
+    class ClienteService {
+        +buscarCliente(id: string): Cliente
+        +listarContas(id: string): Conta[]
+        +realizarTransacao(...)
+    }
+    
+    class ContaService {
+        +abrirConta(cliente: Cliente, tipoConta: string): void
+        +fecharConta(cliente: Cliente, numeroConta: string): void
+        +mudarTipoConta(cliente: Cliente, numeroConta: string, novoTipo: string): void
+        +listarContas(cliente: Cliente): Conta[]
+        +getContaByNumero(cliente: Cliente, numeroConta: string): Conta
+        +depositar(conta: Conta, valor: number): void
+        +sacar(conta: Conta, valor: number): boolean
+        +transferir(origem: Conta, destino: Conta, valor: number): boolean
+        +realizarPagamentoPIX(conta: Conta, valor: number): void
+        +realizarPagamentoBoleto(conta: Conta, numeroBoleto: string, valor: number): void
+    }
+    
+    class GerenteService {
+        +adicionarGerente(gerente: Gerente): void
+        +removerGerente(id: string): void
+        +gerenciarCliente(cliente: Cliente): void
+        +gerenciarConta(conta: Conta): void
+    }
+    
+    class ClienteController {
+        +listarContas(req, res): void
+        +abrirConta(req, res): void
+        +fecharConta(req, res): void
+        +mudarTipoConta(req, res): void
+    }
 
-```bash
-# unit tests
-$ npm run test
+    class ContaController {
+        +depositar(req, res): void
+        +sacar(req, res): void
+        +transferir(req, res): void
+        +realizarPagamentoPIX(req, res): void
+        +realizarPagamentoBoleto(req, res): void
+    }
 
-# e2e tests
-$ npm run test:e2e
+    class GerenteController {
+        +adicionarGerente(req, res): void
+        +removerGerente(req, res): void
+        +gerenciarCliente(req, res): void
+        +gerenciarConta(req, res): void
+    }
 
-# test coverage
-$ npm run test:cov
-```
+    class AppModule {
+        +imports: Module[]
+    }
+    
+    class ClienteModule {
+        +imports: Module[]
+        +controllers: Controller[]
+        +providers: Provider[]
+    }
 
-## Support
+    class ContaModule {
+        +imports: Module[]
+        +controllers: Controller[]
+        +providers: Provider[]
+    }
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+    class GerenteModule {
+        +imports: Module[]
+        +controllers: Controller[]
+        +providers: Provider[]
+    }
+    
+    Cliente "1" --> "*" Conta
+    Conta <|-- ContaCorrente
+    Conta <|-- ContaPoupanca
+    ClienteService --> Cliente
+    ClienteService --> Conta
+    ContaService --> Cliente
+    ContaService --> Conta
+    GerenteService --> Cliente
+    GerenteService --> Conta
+    Gerente "1" --> "*" Cliente
+    ClienteController --> ClienteService
+    ClienteController --> ContaService
+    ContaController --> ContaService
+    GerenteController --> GerenteService
+    GerenteController --> ClienteService
+    AppModule --> ClienteModule
+    AppModule --> ContaModule
+    AppModule --> GerenteModule
+    ClienteModule --> ClienteController
+    ClienteModule --> ClienteService
+    ContaModule --> ContaController
+    ContaModule --> ContaService
+    GerenteModule --> GerenteController
+    GerenteModule --> GerenteService
