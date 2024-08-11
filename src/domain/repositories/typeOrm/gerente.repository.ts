@@ -12,7 +12,9 @@ export class GerenteRepository implements IGerenteRepository {
   ) {}
 
   async findById(id: string): Promise<Gerente | null> {
-    return this.gerenteRepository.findOneBy({ id });
+    return this.gerenteRepository.findOne({
+      where: { id: id } as any,
+    });
   }
 
   async findAll(): Promise<Gerente[]> {
