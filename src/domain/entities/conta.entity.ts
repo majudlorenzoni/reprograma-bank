@@ -8,7 +8,7 @@ export class Conta {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Cliente, { eager: true })
+  @ManyToOne(() => Cliente, (cliente) => cliente.contasAssociadas)
   cliente: Cliente;
 
   @Column()
