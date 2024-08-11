@@ -1,8 +1,8 @@
 import { DataSource, Repository } from 'typeorm';
 import { Conta } from '../../entities/conta.entity';
-import { ContaRepository } from '../interfaces/conta.repository';
+import { IContaRepository } from '../interfaces/conta.repository.interface';
 
-export class ContaTypeORMRepository implements ContaRepository {
+export class ContaRepository implements IContaRepository {
   private repository: Repository<Conta>;
 
   constructor(dataSource: DataSource) {

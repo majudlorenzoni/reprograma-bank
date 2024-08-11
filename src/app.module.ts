@@ -7,6 +7,8 @@ import { Cliente } from './domain/entities/cliente.entity'; // Importe a entidad
 import { Gerente } from './domain/entities/gerente.entity'; // Importe a entidade Gerente
 import { ContaCorrente } from './domain/entities/contaCorrente.entity';
 import { ContaPoupanca } from './domain/entities/contaPoupanca.entity';
+import { ClienteRepository } from './domain/repositories/typeOrm/cliente.repository';
+import { ContaRepository } from './domain/repositories/typeOrm/conta.repository';
 
 @Module({
   imports: [
@@ -23,7 +25,8 @@ import { ContaPoupanca } from './domain/entities/contaPoupanca.entity';
     TypeOrmModule.forFeature([Conta, Cliente]), // Inclua todos os repositórios necessários
     // Adicione outros módulos necessários
   ],
-  // Outros módulos, providers e controllers
+  providers: [ClienteRepository, ContaRepository],
+  exports: [ClienteRepository, ContaRepository],
 })
 
 export class AppModule {}
