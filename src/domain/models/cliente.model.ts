@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
-import { Conta } from './conta.model';
+import { Conta } from '../entities/conta.entity';
 import { Gerente } from './gerente.model';
 
 @Injectable()

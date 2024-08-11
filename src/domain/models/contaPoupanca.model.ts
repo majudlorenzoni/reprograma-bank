@@ -1,4 +1,4 @@
-import { Conta } from './conta.model';
+import { Conta } from '../entities/conta.entity';
 import { Cliente } from './cliente.model';
 import { Injectable } from '@nestjs/common';
 @Injectable()

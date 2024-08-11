@@ -1,17 +1,28 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ClienteModule } from './modules/cliente.module'; // Importe o módulo do Cliente
-import { ContaModule } from './modules/conta.module'; // Importe o módulo de Conta
-import { GerenteModule } from './modules/gerente.module'; // Importe o módulo de Gerente
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+
+import { Conta } from './domain/entities/conta.entity';
+import { Cliente } from './domain/entities/cliente.entity'; // Importe a entidade Cliente
+import { ContaPoupanca } from './domain/entities/contaPoupanca.entity';
+import { ContaCorrente } from './domain/entities/contaCorrente.entity';
 
 @Module({
   imports: [
-    ClienteModule, 
-    ContaModule,  
-    GerenteModule,
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost', 
+      port: 5432,
+      database: 'reprogramabank',
+      username: 'reprograma8',
+      password: 'repro',
+      entities: [Conta, Cliente],
+      synchronize: true, 
+    }),
+    TypeOrmModule.forFeature([Conta, Cliente]), // Inclua todos os repositórios necessários
+    // Adicione outros módulos necessários
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  // Outros módulos, providers e controllers
 })
+
 export class AppModule {}

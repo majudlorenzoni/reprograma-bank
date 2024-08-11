@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Cliente } from '../models/cliente.model';
-import { Conta } from '../models/conta.model';
+import { Conta } from '../entities/conta.entity';
 import { ContaCorrente } from '../models/contaCorrente.model';
 import { ContaPoupanca } from '../models/contaPoupanca.model';
 

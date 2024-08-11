@@ -4,7 +4,7 @@ import { ContaService } from './conta.service';
 
 export class GerenteService {
   private gerentes: Gerente[] = [];
-  
+
   constructor(private readonly contaService: ContaService) {}
 
   adicionarGerente(nomeCompleto: string): Gerente {
@@ -14,9 +14,9 @@ export class GerenteService {
   }
 
   listarGerentes(): Gerente[] {
-    return this.gerentes
+    return this.gerentes;
   }
-  
+
   encontrarGerentePorId(id: string): Gerente | undefined {
     return this.gerentes.find((gerente) => gerente.getId() === id);
   }

@@ -1,15 +1,25 @@
-import { Controller, Get, Post, Delete, Param, Body, Put, NotFoundException } from '@nestjs/common';
-import { ClienteService } from '../services/cliente.service';
-import { ContaService } from '../services/conta.service'; // Import the correct class
-import { Conta } from '../models/conta.model';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Param,
+  Body,
+  Put,
+  NotFoundException,
+} from '@nestjs/common';
 
-@Controller('clientes') 
+
+import { ClienteService } from '../../../domain/services/cliente.service';
+import { ContaService } from '../../../domain/services/conta.service'; // Import the correct class
+import { Conta } from '../../../domain/entities/conta.entity';
+
+@Controller('clientes')
 export class ClienteController {
   constructor(
     private readonly clienteService: ClienteService,
     private readonly contaService: ContaService,
   ) {}
-
 
   @Get(':id/contas')
   async listarContas(@Param('id') clienteId: string) {
@@ -22,7 +32,10 @@ export class ClienteController {
   }
 
   @Post(':id/contas')
-  async abrirConta(@Param('id') clienteId: string, @Body() body: { tipoConta: string }) {
+  async abrirConta(
+    @Param('id') clienteId: string,
+    @Body() body: { tipoConta: string },
+  ) {
     const cliente = this.clienteService.buscarCliente(clienteId);
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');
@@ -32,7 +45,10 @@ export class ClienteController {
   }
 
   @Delete(':id/contas/:numeroConta')
-  async fecharConta(@Param('id') clienteId: string, @Param('numeroConta') numeroConta: string) {
+  async fecharConta(
+    @Param('id') clienteId: string,
+    @Param('numeroConta') numeroConta: string,
+  ) {
     const cliente = this.clienteService.buscarCliente(clienteId);
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');
@@ -46,7 +62,11 @@ export class ClienteController {
   }
 
   @Put(':id/contas/:numeroConta')
-  async mudarTipoConta(@Param('id') clienteId: string, @Param('numeroConta') numeroConta: string, @Body() body: { novoTipo: string }) {
+  async mudarTipoConta(
+    @Param('id') clienteId: string,
+    @Param('numeroConta') numeroConta: string,
+    @Body() body: { novoTipo: string },
+  ) {
     const cliente = this.clienteService.buscarCliente(clienteId);
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');

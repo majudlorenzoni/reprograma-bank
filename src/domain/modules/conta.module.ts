@@ -1,5 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { ContaController } from '../controllers/conta.controller';
+import { ContaController } from '../infrastructure/controllers/controllers/conta.controller';
 import { ContaService } from '../services/conta.service';
 import { ClienteModule } from './cliente.module';
 

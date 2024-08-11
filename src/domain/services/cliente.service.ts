@@ -8,7 +8,7 @@ import { ContaService } from './conta.service';
 export class ClienteService {
   private clientes: Cliente[] = [];
   constructor(private readonly contaService: ContaService) {}
-  
+
   // metodo para listar todos os clientes
   listarClientes(): Cliente[] {
     return this.clientes;
@@ -31,7 +31,9 @@ export class ClienteService {
     id: string,
     clienteAtualizado: Cliente,
   ): Cliente | undefined {
-    const index = this.clientes.findIndex((cliente) => cliente.getIdCliente() === id);
+    const index = this.clientes.findIndex(
+      (cliente) => cliente.getIdCliente() === id,
+    );
     if (index !== -1) {
       this.clientes[index] = clienteAtualizado;
       return clienteAtualizado;
@@ -41,7 +43,9 @@ export class ClienteService {
 
   // remover um cliente
   removerCliente(id: string): boolean {
-    const index = this.clientes.findIndex((cliente) => cliente.getIdCliente() === id);
+    const index = this.clientes.findIndex(
+      (cliente) => cliente.getIdCliente() === id,
+    );
     if (index !== -1) {
       this.clientes.splice(index, 1);
       return true;
