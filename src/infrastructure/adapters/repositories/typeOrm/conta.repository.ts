@@ -1,5 +1,5 @@
 import { DataSource, Repository } from 'typeorm';
-import { Conta } from '../../entities/conta.entity';
+import { Conta } from '../../../../domain/entities/conta.entity';
 import { IContaRepository } from '../interfaces/conta.repository.interface';
 
 export class ContaRepository implements IContaRepository {
@@ -14,7 +14,7 @@ export class ContaRepository implements IContaRepository {
   }
 
   async buscarPorNumero(numero: string): Promise<Conta | null> {
-    return await this.repository.findOne({ where: { numero } }) || null;
+    return (await this.repository.findOne({ where: { numero } })) || null;
   }
 
   async atualizar(conta: Conta): Promise<Conta> {
@@ -29,4 +29,3 @@ export class ContaRepository implements IContaRepository {
     return await this.repository.find();
   }
 }
-

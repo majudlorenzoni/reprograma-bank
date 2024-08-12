@@ -35,8 +35,8 @@ export class ContaService {
     return await this.updateContaUseCase.execute(id, updateContaDto);
   }
 
-  async delete(id: number) {
-    return await this.deleteContaUseCase.execute(id);
+  async delete(numeroConta: string) {
+    return await this.deleteContaUseCase.execute(numeroConta);
   }
 
   async listAll(clienteId: string) {
@@ -45,6 +45,10 @@ export class ContaService {
 
   async listById(id: number) {
     return await this.listByIdContaUseCase.execute(id);
+  }
+
+  async listAllByClienteId(clienteId: string) {
+    return await this.listContasUseCase.execute(clienteId);
   }
 
   async depositar(id: number, valor: number) {

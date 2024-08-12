@@ -1,4 +1,4 @@
-import { Conta } from '../../entities/conta.entity';
+import { Conta } from '../../../../domain/entities/conta.entity';
 
 export interface IContaRepository {
   salvar(conta: Conta): Promise<Conta>;

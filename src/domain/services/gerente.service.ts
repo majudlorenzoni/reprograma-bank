@@ -123,7 +123,7 @@ export class GerenteService {
       throw new NotFoundException(`Conta com número ${numeroConta} não encontrada para o cliente ${clienteId}.`);
     }
 
-    await this.contaService.delete(conta.id)
+    await this.contaService.delete(numeroConta)
     console.log(`Conta ${numeroConta} do cliente ${clienteId} fechada com sucesso.`);
   }
 }

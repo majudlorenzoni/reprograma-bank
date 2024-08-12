@@ -8,8 +8,8 @@ import {
   Body,
   NotFoundException,
 } from '@nestjs/common';
-import { GerenteService } from '../../domain/services/gerente.service';
-import { ClienteService } from '../../domain/services/cliente.service';
+import { GerenteService } from '../../../domain/services/gerente.service';
+import { ClienteService } from '../../../domain/services/cliente.service';
 import { Gerente } from '../../domain/models/gerente.model';
 import { Cliente } from '../../domain/models/cliente.model';
 

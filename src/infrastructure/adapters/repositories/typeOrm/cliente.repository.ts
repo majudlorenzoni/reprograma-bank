@@ -2,16 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IClienteRepository } from '../interfaces/cliente.repository.interface';
-import { Cliente } from '../../entities/cliente.entity';
+import { Cliente } from '../../../../domain/entities/cliente.entity';
 
 @Injectable()
-
 export class ClienteRepository implements IClienteRepository {
   constructor(
     @InjectRepository(Cliente)
     private readonly clienteRepository: Repository<Cliente>,
   ) {}
-  
+
   async findAll(): Promise<Cliente[]> {
     return this.clienteRepository.find();
   }

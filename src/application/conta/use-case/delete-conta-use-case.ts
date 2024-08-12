@@ -10,12 +10,11 @@ export class DeleteContaUseCase {
     private readonly contaRepository: Repository<Conta>,
   ) {}
 
-  async execute(id: number): Promise<void> {
-    const conta = await this.contaRepository.findOne({ where: { id } });
+  async execute(numeroConta: string): Promise<void> {
+    const conta = await this.contaRepository.findOne({ where: { numero: numeroConta } });
     if (!conta) {
-      throw new NotFoundException(`Conta com ID ${id} não encontrada.`);
+      throw new NotFoundException('Conta não encontrada');
     }
-
-    await this.contaRepository.delete(id);
+    await this.contaRepository.delete(conta.id);
   }
 }

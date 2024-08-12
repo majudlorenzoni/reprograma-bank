@@ -7,20 +7,20 @@ import { Cliente } from './domain/entities/cliente.entity'; // Importe a entidad
 import { Gerente } from './domain/entities/gerente.entity'; // Importe a entidade Gerente
 import { ContaCorrente } from './domain/entities/contaCorrente.entity';
 import { ContaPoupanca } from './domain/entities/contaPoupanca.entity';
-import { ClienteRepository } from './domain/repositories/typeOrm/cliente.repository';
-import { ContaRepository } from './domain/repositories/typeOrm/conta.repository';
+import { ClienteRepository } from './infrastructure/adapters/repositories/typeOrm/cliente.repository';
+import { ContaRepository } from './infrastructure/adapters/repositories/typeOrm/conta.repository';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost', 
+      host: 'localhost',
       port: 5432,
       database: 'reprogramabank',
       username: 'reprograma8',
       password: 'repro',
-      entities: [Cliente, Gerente, Conta, ContaCorrente, ContaPoupanca], 
-      synchronize: true, 
+      entities: [Cliente, Gerente, Conta, ContaCorrente, ContaPoupanca],
+      synchronize: true,
     }),
     TypeOrmModule.forFeature([Conta, Cliente]), // Inclua todos os repositórios necessários
     // Adicione outros módulos necessários
@@ -28,5 +28,4 @@ import { ContaRepository } from './domain/repositories/typeOrm/conta.repository'
   providers: [ClienteRepository, ContaRepository],
   exports: [ClienteRepository, ContaRepository],
 })
-
 export class AppModule {}
