@@ -1,7 +1,7 @@
 import { IsString, IsObject, IsOptional, IsDecimal } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class UpdateClientDto {
+export class UpdateClienteDto {
   @IsOptional()
   @IsString()
   nomeCompleto?: string;

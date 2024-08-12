@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { Cliente } from 'src/domain/entities/cliente.entity'
 
 @Injectable()
-export class ListClientByIdUseCase {
+export class ListClienteByIdUseCase {
   constructor(
     @InjectRepository(Cliente)
     private readonly clientRepository: Repository<Cliente>, // Usa Repository<Client> diretamente

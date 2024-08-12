@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Cliente } from 'src/domain/entities/cliente.entity';
-import { UpdateClientDto } from '../dto/update-cliente.dto';
+import { UpdateClienteDto } from '../dto/update-cliente.dto';
 
 @Injectable()
 export class UpdateClienteUseCase {
@@ -11,8 +11,18 @@ export class UpdateClienteUseCase {
     private readonly clienteRepository: Repository<Cliente>,
   ) {}
 
-  async execute(createClienteDto: UpdateClientDto): Promise<Cliente> {
-    const cliente = this.clienteRepository.create(createClienteDto);
+  async execute(id: string, updateClienteDto: UpdateClienteDto): Promise<Cliente> {
+    const cliente = await this.clienteRepository.findOne({
+      where: { id },
+      relations: ['contasAssociadas', 'gerente'], // Carregar relações, se necessário
+    });
+
+    if (!cliente) {
+      throw new NotFoundException(`Cliente com ID ${id} não encontrado.`);
+    }
+
+    Object.assign(cliente, updateClienteDto);
+
     return await this.clienteRepository.save(cliente);
   }
 }

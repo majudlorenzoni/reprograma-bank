@@ -1,107 +1,40 @@
-// import { Injectable } from '@nestjs/common';
-// import * as cripto from 'crypto';
-// import { Gerente } from '../models/gerente.model';
-// import { Cliente } from '../models/cliente.model';
-// import { ContaService } from './conta.service';
-
-// @Injectable()
-// export class ClienteService {
-//   private clientes: Cliente[] = [];
-//   constructor(private readonly contaService: ContaService) {}
-
-//   // metodo para listar todos os clientes
-//   listarClientes(): Cliente[] {
-//     return this.clientes;
-//   }
-
-//   // buscar clientes por id
-//   buscarCliente(id: string): Cliente | undefined {
-//     return this.clientes.find((cliente) => cliente.getIdCliente() === id);
-//   }
-
-//   // criar um novo cliente
-//   criarCliente(cliente: Cliente): Cliente {
-//     cliente.setId(cripto.randomBytes(16).toString('hex'));
-//     this.clientes.push(cliente);
-//     return cliente;
-//   }
-
-//   // atualizar informações de um cliente
-//   atualizarCliente(
-//     id: string,
-//     clienteAtualizado: Cliente,
-//   ): Cliente | undefined {
-//     const index = this.clientes.findIndex(
-//       (cliente) => cliente.getIdCliente() === id,
-//     );
-//     if (index !== -1) {
-//       this.clientes[index] = clienteAtualizado;
-//       return clienteAtualizado;
-//     }
-//     return undefined;
-//   }
-
-//   // remover um cliente
-//   removerCliente(id: string): boolean {
-//     const index = this.clientes.findIndex(
-//       (cliente) => cliente.getIdCliente() === id,
-//     );
-//     if (index !== -1) {
-//       this.clientes.splice(index, 1);
-//       return true;
-//     }
-//     return false;
-//   }
-
-//   abrirConta(gerente: Gerente, cliente: Cliente, tipoConta: string): void {
-//     this.contaService.abrirConta(cliente, tipoConta);
-//   }
-
-//   fecharConta(gerente: Gerente, cliente: Cliente, numeroConta: string): void {
-//     this.contaService.fecharConta(cliente, numeroConta);
-//   }
-
-//   mudarTipoConta(
-//     gerente: Gerente,
-//     cliente: Cliente,
-//     numeroConta: string,
-//     novoTipo: string,
-//   ): void {
-//     this.contaService.mudarTipoConta(cliente, numeroConta, novoTipo);
-//   }
-// }
-// src/services/cliente.service.ts
-
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Cliente } from '../entities/cliente.entity';
-import { ClienteRepository } from '../repositories/typeOrm/cliente.repository';
+import { CreateClienteDto } from '../../application/cliente/dto/create-cliente.dto';
+import { UpdateClienteDto } from '../../application/cliente/dto/update-cliente.dto';
+import { CreateClienteUseCase } from '../../application/cliente/use-case/create-cliente-use-case';
+import { ListClientesUseCase } from '../../application/cliente/use-case/list-clientes.use-case';
+import { ListClienteByIdUseCase } from '../../application/cliente/use-case/list-by-id-cliente-use-case';
+import { UpdateClienteUseCase } from '../../application/cliente/use-case/update-cliente-use-case';
+import { DeleteClienteUseCase } from '../../application/cliente/use-case/delete-cliente-use-case';
 
 @Injectable()
 export class ClienteService {
   constructor(
-    @InjectRepository(ClienteRepository)
-    private readonly clienteRepository: ClienteRepository,
+    private readonly createClienteUseCase: CreateClienteUseCase,
+    private readonly updateClienteUseCase: UpdateClienteUseCase,
+    private readonly deleteClienteUseCase: DeleteClienteUseCase,
+    private readonly listClientesUseCase: ListClientesUseCase,
+    private readonly listByIdClienteUseCase: ListClienteByIdUseCase,
   ) {}
 
-  async getAllClientes(): Promise<Cliente[]> {
-    return this.clienteRepository.findAll();
+  async create(createClienteDto: CreateClienteDto) {
+    return await this.createClienteUseCase.execute(createClienteDto);
   }
 
-  async getClienteById(id: string): Promise<Cliente | null> {
-    return this.clienteRepository.findById(id);
+  async update(id: string, updateClienteDto: UpdateClienteDto) {
+    return await this.updateClienteUseCase.execute(id, updateClienteDto);
   }
 
-  async createCliente(cliente: Cliente): Promise<Cliente> {
-    return this.clienteRepository.create(cliente);
+  async delete(id: string) {
+    return await this.deleteClienteUseCase.execute(id);
   }
 
-  async updateCliente(id: string, cliente: Partial<Cliente>): Promise<Cliente | null> {
-    return this.clienteRepository.update(id, cliente);
+  async listAll() {
+    return await this.listClientesUseCase.execute();
   }
 
-  async deleteCliente(id: string): Promise<void> {
-    return this.clienteRepository.delete(id);
+  async listById(id: string) {
+    return await this.listByIdClienteUseCase.execute(id);
   }
 }
 
