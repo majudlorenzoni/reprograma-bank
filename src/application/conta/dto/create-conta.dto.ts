@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, IsNumber, IsOptional, IsDecimal } from 'class-validator';
 
-export class CreateAccountDto {
+export class CreateContaDto {
   @IsNotEmpty()
   @IsString()
   agencia: string;

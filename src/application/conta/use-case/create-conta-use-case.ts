@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Conta } from '../../../domain/entities/conta.entity';
 import { Cliente } from '../../../domain/entities/cliente.entity'; 
-import { CreateAccountDto } from '../dto/create-conta.dto';
+import { CreateContaDto } from '../dto/create-conta.dto';
 
 @Injectable()
 export class CreateContaUseCase {
@@ -15,14 +15,14 @@ export class CreateContaUseCase {
     private readonly clienteRepository: Repository<Cliente>,
   ) {}
 
-  async execute(createAccountDto: CreateAccountDto, clienteId: string): Promise<Conta> {
+  async execute(CreateContaDto: CreateContaDto, clienteId: string): Promise<Conta> {
     const cliente = await this.clienteRepository.findOne({ where: { id: clienteId } });
     if (!cliente) {
       throw new NotFoundException(`Cliente com ID ${clienteId} não encontrado.`);
     }
 
     const conta = this.contaRepository.create({
-      ...createAccountDto,
+      ...CreateContaDto,
       cliente, 
     });
 

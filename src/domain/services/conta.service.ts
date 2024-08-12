@@ -1,129 +1,75 @@
 import { Injectable } from '@nestjs/common';
-import { Cliente } from '../models/cliente.model';
-import { Conta } from '../entities/conta.entity';
-import { ContaCorrente } from '../models/contaCorrente.model';
-import { ContaPoupanca } from '../models/contaPoupanca.model';
+import { CreateContaDto } from '../../application/conta/dto/create-conta.dto';
+import { UpdateContaDto } from '../../application/conta/dto/update-conta.dto';
+import { ListContasUseCase } from '../../application/conta/use-case/list-contas-use-case';
+import { ListByIdContaUseCase } from '../../application/conta/use-case/list-by-id-conta-use-case';
+import { CreateContaUseCase } from '../../application/conta/use-case/create-conta-use-case';
+import { UpdateContaUseCase } from '../../application/conta/use-case/update-conta-use-case';
+import { DeleteContaUseCase } from '../../application/conta/use-case/delete-conta-use-case';
+import { DepositUseCase } from 'src/application/conta/use-case/deposit-use-case';
+import { WithdrawUseCase } from 'src/application/conta/use-case/withdraw-use-case';
+import { TransferUseCase } from 'src/application/conta/use-case/transfer-use-case';
+import { PaymentPixUseCase } from 'src/application/conta/use-case/payment-pix-use-case';
+import { PaymentBoletoUseCase } from 'src/application/conta/use-case/payment-boleto-use-case';
 
 @Injectable()
 export class ContaService {
-  abrirConta(cliente: Cliente, tipoConta: string): void {
-    const numeroConta = `001-${Math.floor(Math.random() * 1000)}`;
-    switch (tipoConta.toLowerCase()) {
-      case 'corrente':
-        if (cliente.rendaSalarial >= 500) {
-          cliente.contasAssociadas.push(
-            new ContaCorrente(cliente, '001', numeroConta, 0, 'corrente', 100),
-          );
-          console.log(
-            `Conta corrente ${numeroConta} aberta para o cliente ${cliente.nomeCompleto}.`,
-          );
-        } else {
-          console.log(
-            `Cliente ${cliente.nomeCompleto} não possui renda suficiente para abrir uma conta corrente.`,
-          );
-        }
-        break;
-      case 'poupanca':
-        cliente.contasAssociadas.push(
-          new ContaPoupanca(cliente, '001', numeroConta, 0, 'poupanca', 0.5),
-        );
-        console.log(
-          `Conta poupança ${numeroConta} aberta para o cliente ${cliente.nomeCompleto}.`,
-        );
-        break;
-      default:
-        console.log(`Tipo de conta '${tipoConta}' não suportado.`);
-        break;
-    }
+  constructor(
+    private readonly createContaUseCase: CreateContaUseCase,
+    private readonly updateContaUseCase: UpdateContaUseCase,
+    private readonly deleteContaUseCase: DeleteContaUseCase,
+    private readonly listContasUseCase: ListContasUseCase,
+    private readonly listByIdContaUseCase: ListByIdContaUseCase,
+    private readonly depositUseCase: DepositUseCase,
+    private readonly withdrawUseCase: WithdrawUseCase,
+    private readonly transferUseCase: TransferUseCase,
+    private readonly paymentPixUseCase: PaymentPixUseCase,
+    private readonly paymentBoletoUseCase: PaymentBoletoUseCase,
+  ) {}
+
+  async create(createContaDto: CreateContaDto, clienteId: string) {
+    return await this.createContaUseCase.execute(createContaDto, clienteId);
   }
 
-  fecharConta(cliente: Cliente, numeroConta: string): void {
-    const index = cliente.contasAssociadas.findIndex(
-      (c) => c.numero === numeroConta,
-    );
-    if (index !== -1) {
-      cliente.contasAssociadas.splice(index, 1);
-      console.log(
-        `Conta ${numeroConta} fechada para o cliente ${cliente.nomeCompleto}.`,
-      );
-    } else {
-      console.log(
-        `Conta ${numeroConta} não encontrada para o cliente ${cliente.nomeCompleto}.`,
-      );
-    }
+  async update(id: number, updateContaDto: UpdateContaDto) {
+    return await this.updateContaUseCase.execute(id, updateContaDto);
   }
 
-  mudarTipoConta(
-    cliente: Cliente,
-    numeroConta: string,
-    novoTipo: string,
-  ): void {
-    const conta = cliente.contasAssociadas.find(
-      (c) => c.numero === numeroConta,
-    );
-    if (conta) {
-      conta.tipoConta = novoTipo;
-      console.log(
-        `Tipo da conta ${numeroConta} modificada para ${novoTipo} para o cliente ${cliente.nomeCompleto}.`,
-      );
-    } else {
-      console.log(
-        `Conta ${numeroConta} não encontrada para o cliente ${cliente.nomeCompleto}.`,
-      );
-    }
+  async delete(id: number) {
+    return await this.deleteContaUseCase.execute(id);
   }
 
-  listarContas(cliente: Cliente): Conta[] {
-    return cliente.contasAssociadas;
+  async listAll(clienteId: string) {
+    return await this.listContasUseCase.execute(clienteId);
   }
 
-  getContaByNumero(cliente: Cliente, numeroConta: string): Conta | undefined {
-    return cliente.contasAssociadas.find((c) => c.numero === numeroConta);
+  async listById(id: number) {
+    return await this.listByIdContaUseCase.execute(id);
   }
 
-  depositar(conta: Conta, valor: number): void {
-    conta.depositar(valor);
+  async depositar(id: number, valor: number) {
+    await this.depositUseCase.execute(id, valor);
+    console.log(`Depósito de R$ ${valor.toFixed(2)} realizado com sucesso.`);
   }
 
-  sacar(conta: Conta, valor: number): boolean {
-    return conta.sacar(valor);
+  async sacar(id: number, valor: number) {
+    await this.withdrawUseCase.execute(id, valor);
+    console.log(`Saque de R$ ${valor.toFixed(2)} realizado com sucesso.`);
   }
 
-  transferir(origem: Conta, destino: Conta, valor: number): boolean {
-    return origem.transferir(destino, valor);
+  async transferir(origemId: number, destinoId: number, valor: number) {
+    await this.transferUseCase.execute(origemId, destinoId, valor);
+    console.log(`Transferência de R$ ${valor.toFixed(2)} realizada com sucesso.`);
   }
 
-  realizarPagamentoPIX(conta: Conta, valor: number): void {
-    if (conta.verificarSaldo(valor)) {
-      // Lógica para realizar pagamento por PIX
-      console.log(
-        `Pagamento de PIX no valor de R$ ${valor.toFixed(2)} realizado com sucesso.`,
-      );
-      conta.sacar(valor); // Reduz o saldo da conta após o pagamento
-    } else {
-      console.log(
-        `Cliente não possui saldo suficiente ou limite disponível para realizar o pagamento.`,
-      );
-    }
+  async realizarPagamentoPIX(id: number, valor: number) {
+    await this.paymentPixUseCase.execute(id, valor);
+    console.log(`Pagamento de PIX no valor de R$ ${valor.toFixed(2)} realizado com sucesso.`);
   }
 
-  realizarPagamentoBoleto(
-    conta: Conta,
-    numeroBoleto: string,
-    valor: number,
-  ): void {
-    if (conta.verificarSaldo(valor)) {
-      // Lógica para realizar pagamento por número de boleto
-      console.log(
-        `Pagamento do boleto ${numeroBoleto} no valor de R$ ${valor.toFixed(2)} realizado com sucesso.`,
-      );
-      conta.sacar(valor); // Reduz o saldo da conta após o pagamento
-    } else {
-      console.log(
-        `Cliente não possui saldo suficiente ou limite disponível para realizar o pagamento.`,
-      );
-    }
+  async realizarPagamentoBoleto(id: number, numeroBoleto: string, valor: number) {
+    await this.paymentBoletoUseCase.execute(id, numeroBoleto, valor);
+    console.log(`Pagamento do boleto ${numeroBoleto} no valor de R$ ${valor.toFixed(2)} realizado com sucesso.`);
   }
 }
 
-export const contaService = new ContaService();

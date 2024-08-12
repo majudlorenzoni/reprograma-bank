@@ -1,6 +1,6 @@
 import { IsOptional, IsString, IsNumber, IsDecimal } from 'class-validator';
 
-export class UpdateAccountDto {
+export class UpdateContaDto {
   @IsOptional()
   @IsString()
   agencia?: string;
