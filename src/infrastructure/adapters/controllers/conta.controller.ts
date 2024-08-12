@@ -9,7 +9,8 @@ import {
 } from '@nestjs/common';
 import { ClienteService } from '../../../domain/services/cliente.service';
 import { ContaService } from '../../../domain/services/conta.service';
-import { Cliente } from '../../../models/cliente.model';
+import { CreateContaDto } from '../../../application/conta/dto/create-conta.dto';
+import { ListByIdContaUseCase } from '../../../application/conta/use-case/list-by-id-conta-use-case';
 import { Conta } from '../../../domain/entities/conta.entity';
 
 @Controller('clientes/:id/contas')
@@ -17,28 +18,29 @@ export class ContaController {
   constructor(
     private readonly clienteService: ClienteService,
     private readonly contaService: ContaService,
+    private readonly listByIdContaUseCase: ListByIdContaUseCase,
+
   ) {}
 
   @Get()
   async listarContas(@Param('id') clienteId: string): Promise<Conta[]> {
-    const cliente: Cliente = this.clienteService.buscarCliente(clienteId);
+    const cliente = await this.clienteService.listById(clienteId);
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');
     }
-    return this.contaService.listarContas(cliente);
+    return await this.contaService.listAll(clienteId);
   }
 
-  @Post('abrir')
+  @Post('abrirConta')
   async abrirConta(
     @Param('id') clienteId: string,
-    @Body() body: { tipoConta: string },
+    @Body() body: CreateContaDto,
   ): Promise<{ message: string }> {
-    const cliente: Cliente = this.clienteService.buscarCliente(clienteId);
+    const cliente = await this.clienteService.listById(clienteId);
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');
     }
-    const { tipoConta } = body;
-    this.contaService.abrirConta(cliente, tipoConta);
+    await this.contaService.create(body, clienteId);
     return { message: 'Conta aberta com sucesso' };
   }
 
@@ -47,147 +49,139 @@ export class ContaController {
     @Param('id') clienteId: string,
     @Param('numeroConta') numeroConta: string,
   ): Promise<{ message: string }> {
-    const cliente: Cliente = this.clienteService.buscarCliente(clienteId);
+    const cliente = await this.clienteService.listById(clienteId);
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');
     }
-    this.contaService.fecharConta(cliente, numeroConta);
+    await this.contaService.delete(numeroConta);
     return { message: 'Conta fechada com sucesso' };
   }
 
-  @Post('mudar-tipo')
-  async mudarTipoConta(
-    @Param('id') clienteId: string,
-    @Body() body: { numeroConta: string; novoTipo: string },
-  ): Promise<{ message: string }> {
-    const cliente: Cliente = this.clienteService.buscarCliente(clienteId);
-    if (!cliente) {
-      throw new NotFoundException('Cliente não encontrado');
-    }
-    const { numeroConta, novoTipo } = body;
-    this.contaService.mudarTipoConta(cliente, numeroConta, novoTipo);
-    return { message: 'Tipo de conta modificado com sucesso' };
-  }
-  @Post('depositar')
+  @Post('depositar/:contaId')
   async depositar(
     @Param('id') clienteId: string,
-    @Body() body: { numeroConta: string; valor: number },
+    @Param('contaId') contaId: number,
+    @Body() body: { valor: number },
   ): Promise<{ message: string }> {
-    const cliente: Cliente = this.clienteService.buscarCliente(clienteId);
+    const cliente = await this.clienteService.listById(clienteId);
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');
     }
-    const { numeroConta, valor } = body;
-    const conta: Conta = this.contaService.getContaByNumero(
-      cliente,
-      numeroConta,
-    );
+  
+    const conta = await this.contaService.listById(contaId);
     if (!conta) {
       throw new NotFoundException('Conta não encontrada');
     }
-    this.contaService.depositar(conta, valor);
-    return { message: `Depósito de R$ ${valor} realizado com sucesso` };
+  
+    await this.contaService.depositar(conta.id, body.valor);
+    return { message: `Depósito de R$ ${body.valor} realizado com sucesso` };
   }
+  
 
-  @Post('sacar')
+  @Post('sacar/:contaId')
   async sacar(
     @Param('id') clienteId: string,
-    @Body() body: { numeroConta: string; valor: number },
+    @Param('contaId') contaId: number,
+    @Body() body: { valor: number },
   ): Promise<{ message: string }> {
-    const cliente: Cliente = this.clienteService.buscarCliente(clienteId);
+    const cliente = await this.clienteService.listById(clienteId);
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');
     }
-    const { numeroConta, valor } = body;
-    const conta: Conta = this.contaService.getContaByNumero(
-      cliente,
-      numeroConta,
-    );
+  
+    const conta = await this.contaService.listById(contaId);
     if (!conta) {
       throw new NotFoundException('Conta não encontrada');
     }
-    const saqueRealizado: boolean = this.contaService.sacar(conta, valor);
-    if (saqueRealizado) {
-      return { message: `Saque de R$ ${valor} realizado com sucesso` };
+  
+    const saqueRealizado = await this.contaService.sacar(conta.id, body.valor);
+    if (saqueRealizado !== undefined) {
+      return { message: `Saque de R$ ${body.valor} realizado com sucesso` };
     } else {
       throw new BadRequestException(
-        `Saldo insuficiente para sacar R$ ${valor}`,
+        `Saldo insuficiente para sacar R$ ${body.valor}`,
       );
     }
   }
+  
 
-  @Post('transferir')
+  @Post('transferir/:contaOrigemId/:contaDestinoId')
   async transferir(
     @Param('id') clienteId: string,
-    @Body() body: { contaOrigem: string; contaDestino: string; valor: number },
+    @Param('contaOrigemId') contaOrigemId: number,
+    @Param('contaDestinoId') contaDestinoId: number,
+    @Body() body: { valor: number },
   ): Promise<{ message: string }> {
-    const cliente: Cliente = this.clienteService.buscarCliente(clienteId);
+    const cliente = await this.clienteService.listById(clienteId);
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');
     }
-    const { contaOrigem, contaDestino, valor } = body;
-    const origem: Conta = this.contaService.getContaByNumero(
-      cliente,
-      contaOrigem,
-    );
-    const destino: Conta = this.contaService.getContaByNumero(
-      cliente,
-      contaDestino,
-    );
-    if (!origem || !destino) {
+  
+    const contaOrigem = await this.contaService.listById(contaOrigemId);
+    const contaDestino = await this.contaService.listById(contaDestinoId);
+  
+    if (!contaOrigem || !contaDestino) {
       throw new NotFoundException('Conta de origem ou destino não encontrada');
     }
-    const transferenciaRealizada: boolean = this.contaService.transferir(
-      origem,
-      destino,
-      valor,
+  
+    const transferenciaRealizada = await this.contaService.transferir(
+      contaOrigem.id,
+      contaDestino.id,
+      body.valor,
     );
-    if (transferenciaRealizada) {
-      return { message: `Transferência de R$ ${valor} realizada com sucesso` };
+  
+    if (transferenciaRealizada !== undefined) {
+      return { message: `Transferência de R$ ${body.valor} realizada com sucesso` };
     } else {
       throw new BadRequestException(
-        `Não foi possível realizar a transferência de R$ ${valor}`,
+        `Não foi possível realizar a transferência de R$ ${body.valor}`,
       );
     }
   }
-
-  @Post('pagamento-pix')
+  
+  @Post('pagamento-pix/:contaId')
   async realizarPagamentoPIX(
     @Param('id') clienteId: string,
-    @Body() body: { numeroConta: string; valor: number },
+    @Param('contaId') contaId: number,
+    @Body() body: { valor: number },
   ): Promise<{ message: string }> {
-    const { numeroConta, valor } = body;
-    const cliente: Cliente = this.clienteService.buscarCliente(clienteId);
+    const cliente = await this.clienteService.listById(clienteId);
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');
     }
-    const conta: Conta = cliente.contasAssociadas.find(
-      (c) => c.numero === numeroConta,
-    );
+  
+    const conta = await this.contaService.listById(contaId);
     if (!conta) {
       throw new NotFoundException('Conta não encontrada');
     }
-    this.contaService.realizarPagamentoPIX(conta, valor);
+  
+    await this.contaService.realizarPagamentoPIX(conta.id, body.valor);
     return { message: 'Pagamento PIX realizado com sucesso' };
   }
+  
 
-  @Post('pagamento-boleto')
+  @Post('pagamento-boleto/:contaId')
   async realizarPagamentoBoleto(
     @Param('id') clienteId: string,
-    @Body() body: { numeroConta: string; numeroBoleto: string; valor: number },
+    @Param('contaId') contaId: number,
+    @Body() body: { numeroBoleto: string; valor: number },
   ): Promise<{ message: string }> {
-    const { numeroConta, numeroBoleto, valor } = body;
-    const cliente: Cliente = this.clienteService.buscarCliente(clienteId);
+    const cliente = await this.clienteService.listById(clienteId);
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');
     }
-    const conta: Conta = cliente.contasAssociadas.find(
-      (c) => c.numero === numeroConta,
-    );
+  
+    const conta = await this.contaService.listById(contaId);
     if (!conta) {
       throw new NotFoundException('Conta não encontrada');
     }
-    this.contaService.realizarPagamentoBoleto(conta, numeroBoleto, valor);
+  
+    await this.contaService.realizarPagamentoBoleto(
+      conta.id,
+      body.numeroBoleto,
+      body.valor,
+    );
     return { message: 'Pagamento de boleto realizado com sucesso' };
   }
+  
 }
