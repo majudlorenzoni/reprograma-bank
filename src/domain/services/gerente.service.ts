@@ -1,63 +1,130 @@
-import { Cliente } from '../models/cliente.model';
-import { Gerente } from '../models/gerente.model';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateGerenteDto } from '../../application/gerente/dto/create-gerente.dto';
+import { UpdateGerenteDto } from '../../application/gerente/dto/update-gerente.dto';
+import { CreateContaDto } from '../../application/conta/dto/create-conta.dto';
+
+import { Gerente } from '../entities/gerente.entity';
+import { Cliente } from '../entities/cliente.entity';
+
+import { AddClienteToGerenteUseCase } from 'src/application/gerente/use-case/add-cliente-to-gerente-use-case';
+import { CreateGerenteUseCase } from 'src/application/gerente/use-case/create-gerente-use-case';
+import { DeleteGerenteUseCase } from 'src/application/gerente/use-case/delele-gerente-use-case';
+import { ListByIdGerenteUseCase } from 'src/application/gerente/use-case/list-by-id-gerente-use-case';
+import { ListGerentesUseCase } from 'src/application/gerente/use-case/list-gerentes-use-case';
+import { RemoveClienteFromGerenteUseCase } from 'src/application/gerente/use-case/remove-cliente-from-gerente-use-case';
+import { UpdateGerenteUseCase } from 'src/application/gerente/use-case/update-gerente-use-case';
+
+import { CreateContaUseCase } from '../../application/conta/use-case/create-conta-use-case'; 
+import { DeleteContaUseCase } from '../../application/conta/use-case/delete-conta-use-case'; 
+import { ListClienteByIdUseCase } from '../../application/cliente/use-case/list-by-id-cliente-use-case'; 
 import { ContaService } from './conta.service';
 
+
+@Injectable()
 export class GerenteService {
-  private gerentes: Gerente[] = [];
+  constructor(
+    private readonly addClienteToGerenteUseCase: AddClienteToGerenteUseCase,
+    private readonly createGerenteUseCase: CreateGerenteUseCase,
+    private readonly deleteGerenteUseCase: DeleteGerenteUseCase,
+    private readonly listByIdGerenteUseCase: ListByIdGerenteUseCase,
+    private readonly listGerentesUseCase: ListGerentesUseCase,
+    private readonly removeClienteFromGerenteUseCase: RemoveClienteFromGerenteUseCase,
+    private readonly updateGerenteUseCase: UpdateGerenteUseCase,
+    private readonly abrirContaUseCase: CreateContaUseCase,
+    private readonly fecharContaUseCase: DeleteContaUseCase,
+    private readonly findClienteByIdUseCase: ListClienteByIdUseCase,
+    private readonly contaService: ContaService,
+  ) {}
 
-  constructor(private readonly contaService: ContaService) {}
-
-  adicionarGerente(nomeCompleto: string): Gerente {
-    const novoGerente = new Gerente(nomeCompleto);
-    this.gerentes.push(novoGerente);
-    return novoGerente;
+  async criarGerente(createGerenteDto: CreateGerenteDto): Promise<Gerente> {
+    return await this.createGerenteUseCase.execute(createGerenteDto);
   }
 
-  listarGerentes(): Gerente[] {
-    return this.gerentes;
-  }
-
-  encontrarGerentePorId(id: string): Gerente | undefined {
-    return this.gerentes.find((gerente) => gerente.getId() === id);
-  }
-
-  adicionarClienteGerente(gerente: Gerente, cliente: Cliente): void {
-    gerente.clientes.push(cliente);
-    console.log(
-      `Cliente ${cliente.getIdCliente()} adicionado ao gerente ${gerente.nomeCompleto}.`,
-    );
-  }
-
-  removerCliente(gerente: Gerente, idCliente: string): void {
-    const index = gerente.clientes.findIndex(
-      (cliente) => cliente.getIdCliente() === idCliente,
-    );
-    if (index !== -1) {
-      gerente.clientes.splice(index, 1);
-      console.log(
-        `Cliente ${idCliente} removido do gerente ${gerente.nomeCompleto}.`,
-      );
-    } else {
-      console.log(
-        `Cliente ${idCliente} não encontrado no gerente ${gerente.nomeCompleto}.`,
-      );
+  async atualizarGerente(id: string, updateGerenteDto: UpdateGerenteDto): Promise<Gerente> {
+    const gerente = await this.listByIdGerenteUseCase.execute(id);
+    if (!gerente) {
+      throw new NotFoundException(`Gerente com ID ${id} não encontrado.`);
     }
+    return await this.updateGerenteUseCase.execute(id, updateGerenteDto);
   }
 
-  abrirConta(gerente: Gerente, cliente: Cliente, tipoConta: string): void {
-    this.contaService.abrirConta(cliente, tipoConta);
+  async listarGerentes(): Promise<Gerente[]> {
+    return await this.listGerentesUseCase.execute();
   }
 
-  fecharConta(gerente: Gerente, cliente: Cliente, numeroConta: string): void {
-    this.contaService.fecharConta(cliente, numeroConta);
+  async encontrarGerentePorId(id: string): Promise<Gerente> {
+    const gerente = await this.listByIdGerenteUseCase.execute(id);
+    if (!gerente) {
+      throw new NotFoundException(`Gerente com ID ${id} não encontrado.`);
+    }
+    return gerente;
   }
 
-  mudarTipoConta(
-    gerente: Gerente,
-    cliente: Cliente,
-    numeroConta: string,
-    novoTipo: string,
-  ): void {
-    this.contaService.mudarTipoConta(cliente, numeroConta, novoTipo);
+  async adicionarClienteAoGerente(gerenteId: string, clienteId: string): Promise<void> {
+    const gerente = await this.listByIdGerenteUseCase.execute(gerenteId);
+    if (!gerente) {
+      throw new NotFoundException(`Gerente com ID ${gerenteId} não encontrado.`);
+    }
+    const cliente = await this.findClienteByIdUseCase.execute(clienteId);
+    if (!cliente) {
+      throw new NotFoundException(`Cliente com ID ${clienteId} não encontrado.`);
+    }
+    await this.addClienteToGerenteUseCase.execute(gerenteId, clienteId);
+    console.log(`Cliente ${clienteId} adicionado ao gerente ${gerente.nomeCompleto}.`);
+  }
+
+  async removerClienteDoGerente(gerenteId: string, clienteId: string): Promise<void> {
+    const gerente = await this.listByIdGerenteUseCase.execute(gerenteId);
+    if (!gerente) {
+      throw new NotFoundException(`Gerente com ID ${gerenteId} não encontrado.`);
+    }
+    await this.removeClienteFromGerenteUseCase.execute(gerenteId, clienteId);
+    console.log(`Cliente ${clienteId} removido do gerente ${gerente.nomeCompleto}.`);
+  }
+
+  async abrirConta(gerenteId: string, clienteId: string, tipoConta: string): Promise<void> {
+    const gerente = await this.listByIdGerenteUseCase.execute(gerenteId);
+    if (!gerente) {
+      throw new NotFoundException(`Gerente com ID ${gerenteId} não encontrado.`);
+    }
+    const cliente = await this.findClienteByIdUseCase.execute(clienteId);
+    if (!cliente) {
+      throw new NotFoundException(`Cliente com ID ${clienteId} não encontrado.`);
+    }
+
+    const createContaDto = {
+      agencia: '0001',
+      numero: '', // Será gerado pelo serviço de conta
+      saldo: 0,
+      tipoConta,
+      limite: null,
+      taxaJuros: null,
+    };
+
+    await this.contaService.create(createContaDto, clienteId); // Chama o método do ContaService
+    console.log(`Conta do cliente ${clienteId} aberta com sucesso.`);
+  }
+
+
+  async fecharConta(gerenteId: string, clienteId: string, numeroConta: string): Promise<void> {
+    const gerente = await this.listByIdGerenteUseCase.execute(gerenteId);
+    if (!gerente) {
+      throw new NotFoundException(`Gerente com ID ${gerenteId} não encontrado.`);
+    }
+    const cliente = await this.findClienteByIdUseCase.execute(clienteId);
+    if (!cliente) {
+      throw new NotFoundException(`Cliente com ID ${clienteId} não encontrado.`);
+    }
+
+    const contas = await this.contaService.listAll(clienteId); 
+    const conta = contas.find(c => c.numero === numeroConta);
+
+    if (!conta) {
+      throw new NotFoundException(`Conta com número ${numeroConta} não encontrada para o cliente ${clienteId}.`);
+    }
+
+    await this.contaService.delete(conta.id)
+    console.log(`Conta ${numeroConta} do cliente ${clienteId} fechada com sucesso.`);
   }
 }
+

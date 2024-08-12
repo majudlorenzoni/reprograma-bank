@@ -5,7 +5,7 @@ import { Gerente } from '../../../domain/entities/gerente.entity';
 
 
 @Injectable()
-export class ListGerenteUseCase {
+export class ListGerentesUseCase {
   constructor(
     @InjectRepository(Gerente)
     private readonly gerenteRepository: Repository<Gerente>,

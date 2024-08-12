@@ -19,9 +19,9 @@ export class CreateContaDto {
 
   @IsOptional()
   @IsDecimal()
-  limite?: number;
+  limite?:  number | null;
 
   @IsOptional()
   @IsDecimal()
-  taxaJuros?: number;
+  taxaJuros?:  number | null;
 }
