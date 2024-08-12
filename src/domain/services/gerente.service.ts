@@ -52,6 +52,15 @@ export class GerenteService {
     return await this.listGerentesUseCase.execute();
   }
 
+  async deletarGerente(id: string): Promise<void> {
+    const gerente = await this.listByIdGerenteUseCase.execute(id);
+    if (!gerente) {
+      throw new NotFoundException(`Gerente com ID ${id} não encontrado.`);
+    }
+    await this.deleteGerenteUseCase.execute(id);
+    console.log(`Gerente com ID ${id} deletado com sucesso`);
+  }
+
   async encontrarGerentePorId(id: string): Promise<Gerente> {
     const gerente = await this.listByIdGerenteUseCase.execute(id);
     if (!gerente) {
