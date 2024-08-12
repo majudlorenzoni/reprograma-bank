@@ -1,13 +1,15 @@
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { Conta } from '../../../../domain/entities/conta.entity';
 import { IContaRepository } from '../interfaces/conta.repository.interface';
 
+@Injectable()
 export class ContaRepository implements IContaRepository {
-  private repository: Repository<Conta>;
-
-  constructor(dataSource: DataSource) {
-    this.repository = dataSource.getRepository(Conta);
-  }
+  constructor(
+    @InjectRepository(Conta)
+    private readonly repository: Repository<Conta>,
+  ) {}
 
   async salvar(conta: Conta): Promise<Conta> {
     return await this.repository.save(conta);
@@ -16,7 +18,7 @@ export class ContaRepository implements IContaRepository {
   async buscarPorNumero(numero: string): Promise<Conta | null> {
     return (await this.repository.findOne({ where: { numero } })) || null;
   }
-
+   
   async atualizar(conta: Conta): Promise<Conta> {
     return await this.repository.save(conta);
   }

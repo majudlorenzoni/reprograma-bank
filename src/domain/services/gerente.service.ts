@@ -14,11 +14,8 @@ import { ListGerentesUseCase } from 'src/application/gerente/use-case/list-geren
 import { RemoveClienteFromGerenteUseCase } from 'src/application/gerente/use-case/remove-cliente-from-gerente-use-case';
 import { UpdateGerenteUseCase } from 'src/application/gerente/use-case/update-gerente-use-case';
 
-import { CreateContaUseCase } from '../../application/conta/use-case/create-conta-use-case'; 
-import { DeleteContaUseCase } from '../../application/conta/use-case/delete-conta-use-case'; 
 import { ListClienteByIdUseCase } from '../../application/cliente/use-case/list-by-id-cliente-use-case'; 
 import { ContaService } from './conta.service';
-
 
 @Injectable()
 export class GerenteService {
@@ -30,14 +27,12 @@ export class GerenteService {
     private readonly listGerentesUseCase: ListGerentesUseCase,
     private readonly removeClienteFromGerenteUseCase: RemoveClienteFromGerenteUseCase,
     private readonly updateGerenteUseCase: UpdateGerenteUseCase,
-    private readonly abrirContaUseCase: CreateContaUseCase,
-    private readonly fecharContaUseCase: DeleteContaUseCase,
     private readonly findClienteByIdUseCase: ListClienteByIdUseCase,
     private readonly contaService: ContaService,
   ) {}
 
   async criarGerente(createGerenteDto: CreateGerenteDto): Promise<Gerente> {
-    return await this.createGerenteUseCase.execute(createGerenteDto);
+    return this.createGerenteUseCase.execute(createGerenteDto);
   }
 
   async atualizarGerente(id: string, updateGerenteDto: UpdateGerenteDto): Promise<Gerente> {
@@ -45,11 +40,11 @@ export class GerenteService {
     if (!gerente) {
       throw new NotFoundException(`Gerente com ID ${id} não encontrado.`);
     }
-    return await this.updateGerenteUseCase.execute(id, updateGerenteDto);
+    return this.updateGerenteUseCase.execute(id, updateGerenteDto);
   }
 
   async listarGerentes(): Promise<Gerente[]> {
-    return await this.listGerentesUseCase.execute();
+    return this.listGerentesUseCase.execute();
   }
 
   async deletarGerente(id: string): Promise<void> {
@@ -101,7 +96,7 @@ export class GerenteService {
       throw new NotFoundException(`Cliente com ID ${clienteId} não encontrado.`);
     }
 
-    const createContaDto = {
+    const createContaDto: CreateContaDto = {
       agencia: '0001',
       numero: '', // Será gerado pelo serviço de conta
       saldo: 0,
@@ -113,7 +108,6 @@ export class GerenteService {
     await this.contaService.create(createContaDto, clienteId); // Chama o método do ContaService
     console.log(`Conta do cliente ${clienteId} aberta com sucesso.`);
   }
-
 
   async fecharConta(gerenteId: string, clienteId: string, numeroConta: string): Promise<void> {
     const gerente = await this.listByIdGerenteUseCase.execute(gerenteId);
@@ -132,8 +126,7 @@ export class GerenteService {
       throw new NotFoundException(`Conta com número ${numeroConta} não encontrada para o cliente ${clienteId}.`);
     }
 
-    await this.contaService.delete(numeroConta)
+    await this.contaService.delete(numeroConta);
     console.log(`Conta ${numeroConta} do cliente ${clienteId} fechada com sucesso.`);
   }
 }
-
