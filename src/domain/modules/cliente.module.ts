@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ClienteService } from '../services/cliente.service';
-import { ContaModule } from './conta.module'; // Verifique o caminho correto para o ContaModule
+import { ContaModule } from './conta.module';
 
 @Module({
-  imports: [ContaModule], // Importe o ContaModule aqui
+  imports: [ContaModule], 
   providers: [ClienteService],
   exports: [ClienteService],
 })
