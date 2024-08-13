@@ -11,7 +11,7 @@ export class UpdateContaUseCase {
     private readonly contaRepository: Repository<Conta>,
   ) {}
 
-  async execute(id: number, updateAccountDto: UpdateContaDto): Promise<Conta> {
+  async execute(id: string, updateAccountDto: UpdateContaDto): Promise<Conta> {
     const conta = await this.contaRepository.findOne({ where: { id } });
     if (!conta) {
       throw new NotFoundException(`Conta com ID ${id} não encontrada.`);

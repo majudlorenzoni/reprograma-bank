@@ -14,7 +14,7 @@ export class WithdrawUseCase {
     private readonly contaRepository: Repository<Conta>,
   ) {}
 
-  async execute(id: number, valor: number): Promise<void> {
+  async execute(id: string, valor: number): Promise<void> {
     const conta = await this.contaRepository.findOne({ where: { id } });
     if (!conta) {
       throw new NotFoundException(`Conta com ID ${id} não encontrada.`);

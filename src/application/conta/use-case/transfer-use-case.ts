@@ -15,8 +15,8 @@ export class TransferUseCase {
   ) {}
 
   async execute(
-    origemId: number,
-    destinoId: number,
+    origemId: string,
+    destinoId: string,
     valor: number,
   ): Promise<void> {
     const origem = await this.contaRepository.findOne({

@@ -7,11 +7,11 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { ClienteService } from '../../../domain/services/cliente.service';
-import { ContaService } from '../../../domain/services/conta.service';
+import { ClienteService } from 'src/domain/services/cliente.service';
+import { ContaService } from 'src/domain/services/conta.service';
 import { CreateContaDto } from '../dto/create-conta.dto';
 import { ListByIdContaUseCase } from '../use-case/list-by-id-conta-use-case';
-import { Conta } from '../../../domain/entity/conta.entity';
+import { Conta } from 'src/domain/entity/conta.entity';
 
 @Controller('clientes/:id/contas')
 export class ContaController {
@@ -30,12 +30,6 @@ export class ContaController {
     return await this.contaService.listAll(clienteId);
   }
 
-  @Get('conta/:id')
-  async getById(@Param('id') id: string) {
-    const idConta = parseInt(id);
-    return this.listByIdContaUseCase.execute(idConta);
-  }
-
   @Post('abrirConta')
   async abrirConta(
     @Param('id') clienteId: string,
@@ -45,7 +39,7 @@ export class ContaController {
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');
     }
-    await this.contaService.create(body, clienteId);
+    await this.contaService.create(body);
     return { message: 'Conta aberta com sucesso' };
   }
 
@@ -65,7 +59,7 @@ export class ContaController {
   @Post('depositar/:contaId')
   async depositar(
     @Param('id') clienteId: string,
-    @Param('contaId') contaId: number,
+    @Param('contaId') contaId: string,
     @Body() body: { valor: number },
   ): Promise<{ message: string }> {
     const cliente = await this.clienteService.listById(clienteId);
@@ -85,7 +79,7 @@ export class ContaController {
   @Post('sacar/:contaId')
   async sacar(
     @Param('id') clienteId: string,
-    @Param('contaId') contaId: number,
+    @Param('contaId') contaId: string,
     @Body() body: { valor: number },
   ): Promise<{ message: string }> {
     const cliente = await this.clienteService.listById(clienteId);
@@ -111,8 +105,8 @@ export class ContaController {
   @Post('transferir/:contaOrigemId/:contaDestinoId')
   async transferir(
     @Param('id') clienteId: string,
-    @Param('contaOrigemId') contaOrigemId: number,
-    @Param('contaDestinoId') contaDestinoId: number,
+    @Param('contaOrigemId') contaOrigemId: string,
+    @Param('contaDestinoId') contaDestinoId: string,
     @Body() body: { valor: number },
   ): Promise<{ message: string }> {
     const cliente = await this.clienteService.listById(clienteId);
@@ -147,7 +141,7 @@ export class ContaController {
   @Post('pagamento-pix/:contaId')
   async realizarPagamentoPIX(
     @Param('id') clienteId: string,
-    @Param('contaId') contaId: number,
+    @Param('contaId') contaId: string,
     @Body() body: { valor: number },
   ): Promise<{ message: string }> {
     const cliente = await this.clienteService.listById(clienteId);
@@ -167,7 +161,7 @@ export class ContaController {
   @Post('pagamento-boleto/:contaId')
   async realizarPagamentoBoleto(
     @Param('id') clienteId: string,
-    @Param('contaId') contaId: number,
+    @Param('contaId') contaId: string,
     @Body() body: { numeroBoleto: string; valor: number },
   ): Promise<{ message: string }> {
     const cliente = await this.clienteService.listById(clienteId);

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateGerenteDto } from '../../application/gerente/dto/create-gerente.dto';
 import { UpdateGerenteDto } from '../../application/gerente/dto/update-gerente.dto';
 import { CreateContaDto } from '../../application/conta/dto/create-conta.dto';
@@ -107,7 +107,8 @@ export class GerenteService {
   async abrirConta(
     gerenteId: string,
     clienteId: string,
-    tipoConta: string,
+    numeroConta: string,
+    tipoConta: 'corrente' | 'poupanca', // Define os tipos permitidos
   ): Promise<void> {
     const gerente = await this.listByIdGerenteUseCase.execute(gerenteId);
     if (!gerente) {
@@ -115,23 +116,30 @@ export class GerenteService {
         `Gerente com ID ${gerenteId} não encontrado.`,
       );
     }
+  
     const cliente = await this.findClienteByIdUseCase.execute(clienteId);
     if (!cliente) {
       throw new NotFoundException(
         `Cliente com ID ${clienteId} não encontrado.`,
       );
     }
-
+  
+    if (tipoConta !== 'corrente' && tipoConta !== 'poupanca') {
+      throw new BadRequestException(
+        `Tipo de conta ${tipoConta} é inválido. Aceita apenas 'corrente' ou 'poupanca'.`,
+      );
+    }
+  
     const createContaDto: CreateContaDto = {
       agencia: '0001',
-      numero: '', // Será gerado pelo serviço de conta
+      numero: numeroConta, 
       saldo: 0,
       tipoConta,
-      limite: null,
-      taxaJuros: null,
+      limite: tipoConta === 'corrente' ? 1000 : null, 
+      taxaJuros: tipoConta === 'poupanca' ? 0.5 : null, 
     };
-
-    await this.contaService.create(createContaDto, clienteId); // Chama o método do ContaService
+  
+    await this.contaService.create(createContaDto);
     console.log(`Conta do cliente ${clienteId} aberta com sucesso.`);
   }
 

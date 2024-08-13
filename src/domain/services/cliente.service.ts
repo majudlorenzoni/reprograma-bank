@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Cliente } from '../../domain/entity/cliente.entity';
 import { CreateClienteDto } from '../../application/cliente/dto/create-cliente.dto';
 import { UpdateClienteDto } from '../../application/cliente/dto/update-cliente.dto';
-
 import { CreateClienteUseCase } from '../../application/cliente/use-case/create-cliente-use-case';
 import { UpdateClienteUseCase } from '../../application/cliente/use-case/update-cliente-use-case';
 import { ListClientesUseCase } from '../../application/cliente/use-case/list-clientes.use-case';
@@ -11,6 +13,8 @@ import { DeleteClienteUseCase } from '../../application/cliente/use-case/delete-
 @Injectable()
 export class ClienteService {
   constructor(
+    @InjectRepository(Cliente)
+    private clienteRepository: Repository<Cliente>,
     private readonly createClienteUseCase: CreateClienteUseCase,
     private readonly updateClienteUseCase: UpdateClienteUseCase,
     private readonly deleteClienteUseCase: DeleteClienteUseCase,

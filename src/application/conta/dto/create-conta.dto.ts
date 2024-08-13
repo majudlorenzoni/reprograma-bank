@@ -15,7 +15,7 @@ export class CreateContaDto {
 
   @IsNotEmpty()
   @IsString()
-  tipoConta: string;
+  tipoConta: 'corrente' | 'poupanca';
 
   @IsOptional()
   @IsDecimal()

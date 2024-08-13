@@ -1,15 +1,17 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, TableInheritance} from 'typeorm';
-import { Cliente } from './cliente.entity';
+import { Entity, PrimaryGeneratedColumn, Column, TableInheritance, ManyToOne } from 'typeorm';
+import { Cliente } from './cliente.entity'; // Import the 'Cliente' class from the appropriate module
 
 @Entity()
-@TableInheritance({ column: { type: 'varchar', name: 'tipo_conta' } })
-
+@TableInheritance({ column: { type: 'varchar', name: 'tipoConta' } })
 export class Conta {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @ManyToOne(() => Cliente, (cliente) => cliente.contasAssociadas)
+  @ManyToOne(() => Cliente, cliente => cliente.contasAssociadas, { 
+    cascade: ['insert', 'update'] 
+  })
   cliente: Cliente;
+
 
   @Column()
   agencia: string;
@@ -23,9 +25,11 @@ export class Conta {
   @Column()
   tipoConta: string;
 
-  @Column({ nullable: true, type: 'decimal' })
+  @Column({ nullable: true })
   limite?: number;
 
-  @Column({ nullable: true, type: 'decimal' })
+  @Column({ nullable: true })
   taxaJuros?: number;
+
+
 }

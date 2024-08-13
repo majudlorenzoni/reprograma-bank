@@ -10,7 +10,7 @@ export class ListByIdContaUseCase {
     private readonly contaRepository: Repository<Conta>,
   ) {}
 
-  async execute(id: number): Promise<Conta> {
+  async execute(id: string): Promise<Conta> {
     const conta = await this.contaRepository.findOne({
       where: { id },
       relations: ['cliente'],

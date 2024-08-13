@@ -17,8 +17,7 @@ export class PaymentBoletoUseCase {
   ) {}
 
   async execute(
-    id: number,
-    numeroBoleto: string,
+    id: string,
     valor: number,
   ): Promise<void> {
     const conta = await this.contaRepository.findOne({ where: { id } });

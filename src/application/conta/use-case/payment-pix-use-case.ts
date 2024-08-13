@@ -16,7 +16,7 @@ export class PaymentPixUseCase {
     private readonly withdrawUseCase: WithdrawUseCase,
   ) {}
 
-  async execute(id: number, valor: number): Promise<void> {
+  async execute(id: string, valor: number): Promise<void> {
     const conta = await this.contaRepository.findOne({ where: { id } });
     if (!conta) {
       throw new NotFoundException(`Conta com ID ${id} não encontrada.`);
@@ -27,7 +27,7 @@ export class PaymentPixUseCase {
         `Saldo insuficiente na conta com ID ${id}.`,
       );
     }
-
+    
     await this.withdrawUseCase.execute(id, valor);
   }
 }

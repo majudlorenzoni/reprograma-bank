@@ -9,6 +9,8 @@ import { InfrastructureModule } from './infrastructure/infrastructure.module';
 import { ClienteModule } from './domain/modules/cliente.module';
 import { ContaModule } from './domain/modules/conta.module';
 import { GerenteModule } from './domain/modules/gerente.module';
+import { ContaCorrente } from './domain/entity/contaCorrente.entity';
+import { ContaPoupanca } from './domain/entity/contaPoupanca.entity';
 
 @Module({
   imports: [
@@ -19,7 +21,7 @@ import { GerenteModule } from './domain/modules/gerente.module';
       database: 'reprogramabank',
       username: 'reprograma8',
       password: 'repro',
-      entities: [Cliente, Gerente, Conta],
+      entities: [Cliente, Gerente, Conta, ContaCorrente, ContaPoupanca],
       synchronize: true,
     }),
     ApplicationModule,

@@ -1,38 +1,33 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Conta } from '../../../domain/entity/conta.entity';
-import { Cliente } from '../../../domain/entity/cliente.entity';
 import { CreateContaDto } from '../dto/create-conta.dto';
+import { Conta } from '../../../domain/entity/conta.entity';
+import { ContaCorrente } from '../../../domain/entity/contaCorrente.entity';
+import { ContaPoupanca } from '../../../domain/entity/contaPoupanca.entity';
 
 @Injectable()
 export class CreateContaUseCase {
   constructor(
     @InjectRepository(Conta)
-    private readonly contaRepository: Repository<Conta>,
-
-    @InjectRepository(Cliente)
-    private readonly clienteRepository: Repository<Cliente>,
+    private contaRepository: Repository<Conta>,
+    @InjectRepository(ContaCorrente)
+    private contaCorrenteRepository: Repository<ContaCorrente>,
+    @InjectRepository(ContaPoupanca)
+    private contaPoupancaRepository: Repository<ContaPoupanca>,
   ) {}
 
-  async execute(
-    CreateContaDto: CreateContaDto,
-    clienteId: string,
-  ): Promise<Conta> {
-    const cliente = await this.clienteRepository.findOne({
-      where: { id: clienteId },
-    });
-    if (!cliente) {
-      throw new NotFoundException(
-        `Cliente com ID ${clienteId} não encontrado.`,
-      );
+  async execute(createContaDto: CreateContaDto): Promise<Conta> {
+    let conta;
+
+    if (createContaDto.tipoConta === 'corrente') {
+      conta = this.contaCorrenteRepository.create(createContaDto);
+      conta = await this.contaCorrenteRepository.save(conta);
+    } else if (createContaDto.tipoConta === 'poupanca') {
+      conta = this.contaPoupancaRepository.create(createContaDto);
+      conta = await this.contaPoupancaRepository.save(conta);
     }
 
-    const conta = this.contaRepository.create({
-      ...CreateContaDto,
-      cliente,
-    });
-
-    return await this.contaRepository.save(conta);
+    return conta;
   }
 }

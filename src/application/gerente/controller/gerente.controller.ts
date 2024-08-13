@@ -85,9 +85,9 @@ export class GerenteController {
   async abrirConta(
     @Param('idGerente') idGerente: string,
     @Param('idCliente') idCliente: string,
-    @Body() body: { tipoConta: string },
+    @Body() body: { numeroConta: string, tipoConta: "corrente" | "poupanca" },
   ): Promise<{ message: string }> {
-    await this.gerenteService.abrirConta(idGerente, idCliente, body.tipoConta);
+    await this.gerenteService.abrirConta(idGerente, idCliente, body.numeroConta, body.tipoConta);
     return {
       message: `Conta do cliente ${idCliente} aberta com sucesso pelo gerente ${idGerente}.`,
     };

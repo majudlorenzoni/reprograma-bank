@@ -24,11 +24,14 @@ export class Cliente {
   @Column()
   telefone: string;
 
-  @OneToMany(() => Conta, (conta) => conta.cliente, { cascade: true })
+  @OneToMany(() => Conta, conta => conta.cliente, { 
+    cascade: []  
+  })
   contasAssociadas: Conta[];
 
   @ManyToOne(() => Gerente, (gerente) => gerente.clientes)
   gerente: Gerente;
+  
 
   @Column('decimal')
   rendaSalarial: number;

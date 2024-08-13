@@ -1,16 +1,9 @@
-import { Entity, Column } from 'typeorm';
+import { Entity } from 'typeorm';
 import { Conta } from './conta.entity';
+import { Column } from 'typeorm';
 
 @Entity()
 export class ContaCorrente extends Conta {
-  @Column('decimal')
+  @Column('decimal', { nullable: false })
   limiteChequeEspecial: number;
-
-  usarChequeEspecial(valor: number): boolean {
-    if (this.saldo + this.limiteChequeEspecial >= valor) {
-      this.saldo -= valor;
-      return true;
-    }
-    return false;
-  }
 }
