@@ -9,10 +9,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { ClienteService } from '../../../domain/services/cliente.service'; 
-import { ContaService } from '../../../domain/services/conta.service'; 
-import { CreateContaDto } from '../../../application/conta/dto/create-conta.dto';
-
+import { ClienteService } from 'src/domain/services/cliente.service';
+import { ContaService } from 'src/domain/services/conta.service';
+import { CreateContaDto } from 'src/application/conta/dto/create-conta.dto';
 
 @Controller('clientes')
 export class ClienteController {
@@ -40,16 +39,16 @@ export class ClienteController {
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');
     }
-    
+
     const createContaDto: CreateContaDto = {
       agencia: '0001',
-      numero: this.generateNumeroConta(), 
+      numero: this.generateNumeroConta(),
       saldo: 0,
       tipoConta: body.tipoConta,
       limite: null,
       taxaJuros: null,
     };
-    
+
     await this.contaService.create(createContaDto, clienteId);
     return { message: 'Conta aberta com sucesso' };
   }

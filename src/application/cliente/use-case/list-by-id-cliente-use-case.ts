@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Cliente } from 'src/domain/entities/cliente.entity'
+import { Cliente } from 'src/domain/entity/cliente.entity';
 
 @Injectable()
 export class ListClienteByIdUseCase {

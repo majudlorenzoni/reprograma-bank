@@ -9,9 +9,9 @@ import {
 } from '@nestjs/common';
 import { ClienteService } from '../../../domain/services/cliente.service';
 import { ContaService } from '../../../domain/services/conta.service';
-import { CreateContaDto } from '../../../application/conta/dto/create-conta.dto';
-import { ListByIdContaUseCase } from '../../../application/conta/use-case/list-by-id-conta-use-case';
-import { Conta } from '../../../domain/entities/conta.entity';
+import { CreateContaDto } from '../dto/create-conta.dto';
+import { ListByIdContaUseCase } from '../use-case/list-by-id-conta-use-case';
+import { Conta } from '../../../domain/entity/conta.entity';
 
 @Controller('clientes/:id/contas')
 export class ContaController {
@@ -19,7 +19,6 @@ export class ContaController {
     private readonly clienteService: ClienteService,
     private readonly contaService: ContaService,
     private readonly listByIdContaUseCase: ListByIdContaUseCase,
-
   ) {}
 
   @Get()
@@ -29,6 +28,12 @@ export class ContaController {
       throw new NotFoundException('Cliente não encontrado');
     }
     return await this.contaService.listAll(clienteId);
+  }
+
+  @Get('conta/:id')
+  async getById(@Param('id') id: string) {
+    const idConta = parseInt(id);
+    return this.listByIdContaUseCase.execute(idConta);
   }
 
   @Post('abrirConta')
@@ -67,16 +72,15 @@ export class ContaController {
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');
     }
-  
+
     const conta = await this.contaService.listById(contaId);
     if (!conta) {
       throw new NotFoundException('Conta não encontrada');
     }
-  
+
     await this.contaService.depositar(conta.id, body.valor);
     return { message: `Depósito de R$ ${body.valor} realizado com sucesso` };
   }
-  
 
   @Post('sacar/:contaId')
   async sacar(
@@ -88,12 +92,12 @@ export class ContaController {
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');
     }
-  
+
     const conta = await this.contaService.listById(contaId);
     if (!conta) {
       throw new NotFoundException('Conta não encontrada');
     }
-  
+
     const saqueRealizado = await this.contaService.sacar(conta.id, body.valor);
     if (saqueRealizado !== undefined) {
       return { message: `Saque de R$ ${body.valor} realizado com sucesso` };
@@ -103,7 +107,6 @@ export class ContaController {
       );
     }
   }
-  
 
   @Post('transferir/:contaOrigemId/:contaDestinoId')
   async transferir(
@@ -116,29 +119,31 @@ export class ContaController {
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');
     }
-  
+
     const contaOrigem = await this.contaService.listById(contaOrigemId);
     const contaDestino = await this.contaService.listById(contaDestinoId);
-  
+
     if (!contaOrigem || !contaDestino) {
       throw new NotFoundException('Conta de origem ou destino não encontrada');
     }
-  
+
     const transferenciaRealizada = await this.contaService.transferir(
       contaOrigem.id,
       contaDestino.id,
       body.valor,
     );
-  
+
     if (transferenciaRealizada !== undefined) {
-      return { message: `Transferência de R$ ${body.valor} realizada com sucesso` };
+      return {
+        message: `Transferência de R$ ${body.valor} realizada com sucesso`,
+      };
     } else {
       throw new BadRequestException(
         `Não foi possível realizar a transferência de R$ ${body.valor}`,
       );
     }
   }
-  
+
   @Post('pagamento-pix/:contaId')
   async realizarPagamentoPIX(
     @Param('id') clienteId: string,
@@ -149,16 +154,15 @@ export class ContaController {
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');
     }
-  
+
     const conta = await this.contaService.listById(contaId);
     if (!conta) {
       throw new NotFoundException('Conta não encontrada');
     }
-  
+
     await this.contaService.realizarPagamentoPIX(conta.id, body.valor);
     return { message: 'Pagamento PIX realizado com sucesso' };
   }
-  
 
   @Post('pagamento-boleto/:contaId')
   async realizarPagamentoBoleto(
@@ -170,12 +174,12 @@ export class ContaController {
     if (!cliente) {
       throw new NotFoundException('Cliente não encontrado');
     }
-  
+
     const conta = await this.contaService.listById(contaId);
     if (!conta) {
       throw new NotFoundException('Conta não encontrada');
     }
-  
+
     await this.contaService.realizarPagamentoBoleto(
       conta.id,
       body.numeroBoleto,
@@ -183,5 +187,4 @@ export class ContaController {
     );
     return { message: 'Pagamento de boleto realizado com sucesso' };
   }
-  
 }

@@ -1,5 +1,5 @@
 // src/domain/repositories/gerente.repository.ts
-import { Gerente } from '../../../../domain/entities/gerente.entity';
+import { Gerente } from '../entity/gerente.entity';
 
 export interface IGerenteRepository {
   findById(id: string): Promise<Gerente | null>;

@@ -8,9 +8,9 @@ import {
   Body,
 } from '@nestjs/common';
 import { GerenteService } from '../../../domain/services/gerente.service';
-import { CreateGerenteDto } from '../../../application/gerente/dto/create-gerente.dto';
-import { UpdateGerenteDto } from '../../../application/gerente/dto/update-gerente.dto';
-import { Gerente } from '../../../domain/entities/gerente.entity';
+import { CreateGerenteDto } from '../dto/create-gerente.dto';
+import { UpdateGerenteDto } from '../dto/update-gerente.dto';
+import { Gerente } from '../../../domain/entity/gerente.entity';
 
 @Controller('gerentes')
 export class GerenteController {
@@ -18,8 +18,10 @@ export class GerenteController {
 
   @Post()
   async criarGerente(
-    @Body() createGerenteDto: CreateGerenteDto,): Promise<{ gerente: Gerente }> {
-    const novoGerente = await this.gerenteService.criarGerente(createGerenteDto);
+    @Body() createGerenteDto: CreateGerenteDto,
+  ): Promise<{ gerente: Gerente }> {
+    const novoGerente =
+      await this.gerenteService.criarGerente(createGerenteDto);
     return { gerente: novoGerente };
   }
 
@@ -50,7 +52,9 @@ export class GerenteController {
   }
 
   @Delete(':idGerente')
-  async deletarGerente(@Param('idGerente') idGerente: string): Promise<{ message: string }> {
+  async deletarGerente(
+    @Param('idGerente') idGerente: string,
+  ): Promise<{ message: string }> {
     await this.gerenteService.deletarGerente(idGerente);
     return { message: `Gerente com ID ${idGerente} deletado com sucesso.` };
   }

@@ -1,9 +1,9 @@
 import { DataSource } from 'typeorm';
-import { Gerente } from './domain/entities/gerente.entity';
-import { Cliente } from './domain/entities/cliente.entity';
-import { Conta } from './domain/entities/conta.entity';
-import { ContaCorrente } from './domain/entities/contaCorrente.entity';
-import { ContaPoupanca } from './domain/entities/contaPoupanca.entity';
+import { Gerente } from './domain/entity/gerente.entity';
+import { Cliente } from './domain/entity/cliente.entity';
+import { Conta } from './domain/entity/conta.entity';
+import { ContaCorrente } from './domain/entity/contaCorrente.entity';
+import { ContaPoupanca } from './domain/entity/contaPoupanca.entity';
 
 const AppDataSource = new DataSource({
   type: 'postgres',
@@ -70,7 +70,6 @@ async function runTests() {
     console.log('Cliente:', savedCliente);
     console.log('Conta Corrente:', savedContaCorrente);
     console.log('Conta Poupança:', savedContaPoupanca);
-
   } catch (error) {
     console.error('Erro durante a execução dos testes:', error);
   } finally {

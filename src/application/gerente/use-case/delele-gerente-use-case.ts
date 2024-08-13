@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Gerente } from '../../../domain/entities/gerente.entity'; 
+import { Gerente } from '../../../domain/entity/gerente.entity';
 
 @Injectable()
 export class DeleteGerenteUseCase {
@@ -12,10 +12,12 @@ export class DeleteGerenteUseCase {
 
   async execute(gerenteId: string): Promise<void> {
     const gerente = await this.gerenteRepository.findOne({
-      where: { idGerente: gerenteId }, 
+      where: { idGerente: gerenteId },
     });
     if (!gerente) {
-      throw new NotFoundException(`Gerente com ID ${gerenteId} não encontrado.`);
+      throw new NotFoundException(
+        `Gerente com ID ${gerenteId} não encontrado.`,
+      );
     }
 
     await this.gerenteRepository.remove(gerente);

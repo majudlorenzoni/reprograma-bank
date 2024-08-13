@@ -1,17 +1,14 @@
-// src/app.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Cliente } from './domain/entity/cliente.entity';
+import { Conta } from './domain/entity/conta.entity';
+import { Gerente } from './domain/entity/gerente.entity';
+import { ApplicationModule } from './application/application.module';
+import { DomainModule } from './domain/domain.module';
+import { InfrastructureModule } from './infrastructure/infrastructure.module';
 import { ClienteModule } from './domain/modules/cliente.module';
 import { ContaModule } from './domain/modules/conta.module';
 import { GerenteModule } from './domain/modules/gerente.module';
-import { Cliente } from './domain/entities/cliente.entity';
-import { Gerente } from './domain/entities/gerente.entity';
-import { Conta } from './domain/entities/conta.entity';
-import { ContaCorrente } from './domain/entities/contaCorrente.entity';
-import { ContaPoupanca } from './domain/entities/contaPoupanca.entity';
-import { GerenteController } from './infrastructure/adapters/controllers/gerente.controller';
-import { ClienteController } from './infrastructure/adapters/controllers/cliente.controller';
-import { ContaController } from './infrastructure/adapters/controllers/conta.controller';
 
 @Module({
   imports: [
@@ -22,13 +19,18 @@ import { ContaController } from './infrastructure/adapters/controllers/conta.con
       database: 'reprogramabank',
       username: 'reprograma8',
       password: 'repro',
-      entities: [Cliente, Gerente, Conta, ContaCorrente, ContaPoupanca],
+      entities: [Cliente, Gerente, Conta],
       synchronize: true,
     }),
-    ContaModule,
+    ApplicationModule,
+    DomainModule,
+    InfrastructureModule,
     ClienteModule,
+    ContaModule,
     GerenteModule,
   ],
-  controllers: [GerenteController, ClienteController, ContaController],
+  controllers: [],
+  providers: [],
 })
+
 export class AppModule {}

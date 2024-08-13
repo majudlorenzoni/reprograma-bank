@@ -3,8 +3,7 @@ import { CreateGerenteDto } from '../../application/gerente/dto/create-gerente.d
 import { UpdateGerenteDto } from '../../application/gerente/dto/update-gerente.dto';
 import { CreateContaDto } from '../../application/conta/dto/create-conta.dto';
 
-import { Gerente } from '../entities/gerente.entity';
-import { Cliente } from '../entities/cliente.entity';
+import { Gerente } from '../entity/gerente.entity';
 
 import { AddClienteToGerenteUseCase } from 'src/application/gerente/use-case/add-cliente-to-gerente-use-case';
 import { CreateGerenteUseCase } from 'src/application/gerente/use-case/create-gerente-use-case';
@@ -14,7 +13,7 @@ import { ListGerentesUseCase } from 'src/application/gerente/use-case/list-geren
 import { RemoveClienteFromGerenteUseCase } from 'src/application/gerente/use-case/remove-cliente-from-gerente-use-case';
 import { UpdateGerenteUseCase } from 'src/application/gerente/use-case/update-gerente-use-case';
 
-import { ListClienteByIdUseCase } from '../../application/cliente/use-case/list-by-id-cliente-use-case'; 
+import { ListClienteByIdUseCase } from '../../application/cliente/use-case/list-by-id-cliente-use-case';
 import { ContaService } from './conta.service';
 
 @Injectable()
@@ -35,7 +34,10 @@ export class GerenteService {
     return this.createGerenteUseCase.execute(createGerenteDto);
   }
 
-  async atualizarGerente(id: string, updateGerenteDto: UpdateGerenteDto): Promise<Gerente> {
+  async atualizarGerente(
+    id: string,
+    updateGerenteDto: UpdateGerenteDto,
+  ): Promise<Gerente> {
     const gerente = await this.listByIdGerenteUseCase.execute(id);
     if (!gerente) {
       throw new NotFoundException(`Gerente com ID ${id} não encontrado.`);
@@ -64,36 +66,60 @@ export class GerenteService {
     return gerente;
   }
 
-  async adicionarClienteAoGerente(gerenteId: string, clienteId: string): Promise<void> {
+  async adicionarClienteAoGerente(
+    gerenteId: string,
+    clienteId: string,
+  ): Promise<void> {
     const gerente = await this.listByIdGerenteUseCase.execute(gerenteId);
     if (!gerente) {
-      throw new NotFoundException(`Gerente com ID ${gerenteId} não encontrado.`);
+      throw new NotFoundException(
+        `Gerente com ID ${gerenteId} não encontrado.`,
+      );
     }
     const cliente = await this.findClienteByIdUseCase.execute(clienteId);
     if (!cliente) {
-      throw new NotFoundException(`Cliente com ID ${clienteId} não encontrado.`);
+      throw new NotFoundException(
+        `Cliente com ID ${clienteId} não encontrado.`,
+      );
     }
     await this.addClienteToGerenteUseCase.execute(gerenteId, clienteId);
-    console.log(`Cliente ${clienteId} adicionado ao gerente ${gerente.nomeCompleto}.`);
+    console.log(
+      `Cliente ${clienteId} adicionado ao gerente ${gerente.nomeCompleto}.`,
+    );
   }
 
-  async removerClienteDoGerente(gerenteId: string, clienteId: string): Promise<void> {
+  async removerClienteDoGerente(
+    gerenteId: string,
+    clienteId: string,
+  ): Promise<void> {
     const gerente = await this.listByIdGerenteUseCase.execute(gerenteId);
     if (!gerente) {
-      throw new NotFoundException(`Gerente com ID ${gerenteId} não encontrado.`);
+      throw new NotFoundException(
+        `Gerente com ID ${gerenteId} não encontrado.`,
+      );
     }
     await this.removeClienteFromGerenteUseCase.execute(gerenteId, clienteId);
-    console.log(`Cliente ${clienteId} removido do gerente ${gerente.nomeCompleto}.`);
+    console.log(
+      `Cliente ${clienteId} removido do gerente ${gerente.nomeCompleto}.`,
+    );
   }
 
-  async abrirConta(gerenteId: string, clienteId: string, tipoConta: string): Promise<void> {
+  async abrirConta(
+    gerenteId: string,
+    clienteId: string,
+    tipoConta: string,
+  ): Promise<void> {
     const gerente = await this.listByIdGerenteUseCase.execute(gerenteId);
     if (!gerente) {
-      throw new NotFoundException(`Gerente com ID ${gerenteId} não encontrado.`);
+      throw new NotFoundException(
+        `Gerente com ID ${gerenteId} não encontrado.`,
+      );
     }
     const cliente = await this.findClienteByIdUseCase.execute(clienteId);
     if (!cliente) {
-      throw new NotFoundException(`Cliente com ID ${clienteId} não encontrado.`);
+      throw new NotFoundException(
+        `Cliente com ID ${clienteId} não encontrado.`,
+      );
     }
 
     const createContaDto: CreateContaDto = {
@@ -109,24 +135,36 @@ export class GerenteService {
     console.log(`Conta do cliente ${clienteId} aberta com sucesso.`);
   }
 
-  async fecharConta(gerenteId: string, clienteId: string, numeroConta: string): Promise<void> {
+  async fecharConta(
+    gerenteId: string,
+    clienteId: string,
+    numeroConta: string,
+  ): Promise<void> {
     const gerente = await this.listByIdGerenteUseCase.execute(gerenteId);
     if (!gerente) {
-      throw new NotFoundException(`Gerente com ID ${gerenteId} não encontrado.`);
+      throw new NotFoundException(
+        `Gerente com ID ${gerenteId} não encontrado.`,
+      );
     }
     const cliente = await this.findClienteByIdUseCase.execute(clienteId);
     if (!cliente) {
-      throw new NotFoundException(`Cliente com ID ${clienteId} não encontrado.`);
+      throw new NotFoundException(
+        `Cliente com ID ${clienteId} não encontrado.`,
+      );
     }
 
-    const contas = await this.contaService.listAll(clienteId); 
-    const conta = contas.find(c => c.numero === numeroConta);
+    const contas = await this.contaService.listAll(clienteId);
+    const conta = contas.find((c) => c.numero === numeroConta);
 
     if (!conta) {
-      throw new NotFoundException(`Conta com número ${numeroConta} não encontrada para o cliente ${clienteId}.`);
+      throw new NotFoundException(
+        `Conta com número ${numeroConta} não encontrada para o cliente ${clienteId}.`,
+      );
     }
 
     await this.contaService.delete(numeroConta);
-    console.log(`Conta ${numeroConta} do cliente ${clienteId} fechada com sucesso.`);
+    console.log(
+      `Conta ${numeroConta} do cliente ${clienteId} fechada com sucesso.`,
+    );
   }
 }

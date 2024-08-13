@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Cliente } from 'src/domain/entities/cliente.entity';
+import { Cliente } from 'src/domain/entity/cliente.entity';
 import { UpdateClienteDto } from '../dto/update-cliente.dto';
 
 @Injectable()
@@ -11,7 +11,10 @@ export class UpdateClienteUseCase {
     private readonly clienteRepository: Repository<Cliente>,
   ) {}
 
-  async execute(id: string, updateClienteDto: UpdateClienteDto): Promise<Cliente> {
+  async execute(
+    id: string,
+    updateClienteDto: UpdateClienteDto,
+  ): Promise<Cliente> {
     const cliente = await this.clienteRepository.findOne({
       where: { id },
       relations: ['contasAssociadas', 'gerente'], // Carregar relações, se necessário

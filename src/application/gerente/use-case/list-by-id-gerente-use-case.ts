@@ -1,8 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Gerente } from '../../../domain/entities/gerente.entity'; 
-
+import { Gerente } from '../../../domain/entity/gerente.entity';
 
 @Injectable()
 export class ListByIdGerenteUseCase {
@@ -18,7 +17,9 @@ export class ListByIdGerenteUseCase {
     });
 
     if (!gerente) {
-      throw new NotFoundException(`Gerente com ID ${idGerente} não encontrado.`);
+      throw new NotFoundException(
+        `Gerente com ID ${idGerente} não encontrado.`,
+      );
     }
 
     return gerente;

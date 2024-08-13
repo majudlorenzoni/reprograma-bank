@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Conta } from '../../../domain/entities/conta.entity';
-import { Cliente } from '../../../domain/entities/cliente.entity';
+import { Conta } from '../../../domain/entity/conta.entity';
+import { Cliente } from '../../../domain/entity/cliente.entity';
 
 @Injectable()
 export class ListContasUseCase {
@@ -21,7 +21,9 @@ export class ListContasUseCase {
     });
 
     if (!cliente) {
-      throw new NotFoundException(`Cliente com ID ${clienteId} não encontrado.`);
+      throw new NotFoundException(
+        `Cliente com ID ${clienteId} não encontrado.`,
+      );
     }
 
     return cliente.contasAssociadas;

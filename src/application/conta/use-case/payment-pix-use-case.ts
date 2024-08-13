@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Conta } from '../../../domain/entities/conta.entity';
+import { Conta } from '../../../domain/entity/conta.entity';
 import { WithdrawUseCase } from './withdraw-use-case';
 
 @Injectable()
@@ -19,7 +23,9 @@ export class PaymentPixUseCase {
     }
 
     if (conta.saldo < valor) {
-      throw new BadRequestException(`Saldo insuficiente na conta com ID ${id}.`);
+      throw new BadRequestException(
+        `Saldo insuficiente na conta com ID ${id}.`,
+      );
     }
 
     await this.withdrawUseCase.execute(id, valor);

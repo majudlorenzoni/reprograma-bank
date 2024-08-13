@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { IGerenteRepository } from '../interfaces/gerente.repository.interface';
-import { Gerente } from '../../../../domain/entities/gerente.entity';
+import { IGerenteRepository } from '../../../domain/interfaces/gerente.repository.interface';
+import { Gerente } from '../../../domain/entity/gerente.entity';
 
 @Injectable()
 export class GerenteRepository implements IGerenteRepository {

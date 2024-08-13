@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Gerente } from '../../../domain/entities/gerente.entity'; 
-
+import { Gerente } from '../../../domain/entity/gerente.entity';
 
 @Injectable()
 export class ListGerentesUseCase {
